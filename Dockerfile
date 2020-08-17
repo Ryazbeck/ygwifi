@@ -18,7 +18,7 @@ COPY cfg/sysctl.conf /etc/sysctl.conf
 VOLUME /var/log/ /var/log/
 RUN mkdir -p /var/log/yarden-gnome
 
-ENV FLASK_APP app
-ENV FLASK_ENV development
+ENV FLASK_APP "app"
+ENV FLASK_ENV "development"
 
 CMD flask run

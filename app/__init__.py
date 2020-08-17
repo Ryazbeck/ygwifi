@@ -1,10 +1,13 @@
 from flask import Flask, current_app, request
-from flask_logs import LogSetup
+from logs import LogSetup
 from datetime import datetime as dt
-import logging
-import os
+import datetime, logging, os, sys, json_logging
 
 app = Flask(__name__)
+json_logging.ENABLE_JSON_LOGGING = True
+json_logging.init(framework_name='flask')
+json_logging.init_request_instrument(app)
+
 
 # Logging Setup - This would usually be stuffed into a settings module
 app.config["LOG_TYPE"] = os.environ.get("LOG_TYPE", "stream")

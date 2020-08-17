@@ -1,10 +1,10 @@
 # ygwifi
 
-### IoT WiFi and AP with REST API for Raspberry Pi - Python, Flask, Docker
+### Raspberry Pi IoT WiFi and AP Hotspot controller with REST API - Python, Flask, Docker
 
 Intended for Pi configuration via host portal such as a web server or captive portal hosted on a Raspberry Pi.
 
-I've only tested this on a Raspberry Pi Zero W.
+I've only tested this on a Raspberry Pi Zero W with [Hypriot](https://blog.hypriot.com/downloads/)
 
 Examples:
 
