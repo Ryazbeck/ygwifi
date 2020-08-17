@@ -8,7 +8,6 @@ json_logging.ENABLE_JSON_LOGGING = True
 json_logging.init(framework_name='flask')
 json_logging.init_request_instrument(app)
 
-
 # Logging Setup - This would usually be stuffed into a settings module
 app.config["LOG_TYPE"] = os.environ.get("LOG_TYPE", "stream")
 app.config["LOG_LEVEL"] = os.environ.get("LOG_LEVEL", "INFO")

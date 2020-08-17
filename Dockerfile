@@ -1,9 +1,10 @@
-FROM arm32v6/alpine:latest
+FROM arm32v6/python:rc-alpine
 
 WORKDIR /
 
 RUN apk update
 RUN apk add dhclient bridge hostapd wireless-tools wpa_supplicant dnsmasq iw
+RUN apk add python3
 
 COPY requirements.txt requirements.txt
 RUN pip3 install -i requirements.txt
