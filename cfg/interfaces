@@ -1,0 +1,17 @@
+source-directory /etc/network/interfaces.d
+
+auto lo
+iface lo inet loopback
+
+allow-hotplug wlan0
+iface wlan0 inet dhcp
+wpa-ssid "thouartcreepy2g"
+wpa-psk "holyghost"
+
+allow-hotplug ap0
+iface ap0 inet static
+        pre-up iw phy phy0 interface add ap0 type __ap
+        post-down iw dev ap0 del
+        address 192.168.100.1
+        netmask 255.255.255.0
+        hostapd /etc/hostapd/hostapd.conf

@@ -1,7 +1,60 @@
+# at boot
+1. start_wpa
+2. check if wlan0 has address
+3. if not:
+    1. check wpa_cli status
+    2. if COMPLETED
+        go to 4.
+    3. if INACTIVE|DISCONNECTED
+        1. wpa_supplicant.conf isn't configured
+        2. go to 7.
+4. dhclient wlan0
+5. check wlan address, confirm connection
+6. run sensors
+7. listen for button
+
+# at button
+1. turn down wlan0
+2. enable ap0
+3. launch web
+    1. scan for ssids
+4. ap0 should only be up temporarily. 
+    set a timer. 10 mins?
+    after timer:
+        disable ap0
+        bounce wlan0
+
+#wpaup
+wpa_supplicant -B -i wlan0 -c /etc/wpa_supplicant/wpa_supplicant.conf
+wpa_supplicant -B -Dnl80211 -dd -i wlan0 -c /etc/wpa_supplicant/wpa_supplicant.conf
+
+#wlan has address
+ip neigh
+> 192.168.1.1 dev wlan0 lladdr a8:9a:93:a4:70:e2 REACHABLE
+
+#wpa state
+wpa_cli status
+> wpa_state=COMPLETED|INACTIVE|DISCONNECTED
+
+#scan for ssids
+iw wlan0 scan | egrep 'SSID: \w' | awk '{print $2}'
+
+#wlanup
+ifconfig wlan0 up
+dhclient wlan0
+
+#wlan down
+ifconfig wlan0 down
+wpa_cli terminate
+dhclient -r
+ip addr flush wlan0
+rm /var/run/wpa_supplicant/wlan0
+
 #ap up
 rm /var/run/hostapd/ap0
 iw phy phy0 interface add ap0 type __ap
-ifconfig ap0 up 192.168.100.1
+ifconfig ap0 up
+ifconfig ap0 192.168.100.1
 hostapd -B /etc/hostapd/hostapd.conf
 dnsmasq
 
@@ -10,23 +63,3 @@ ifconfig ap0 down
 iw dev ap0 del
 killall hostapd dnsmasq
 
-#wlan up
-wpa_supplicant -B -i wlan0 -c /etc/wpa_supplicant/wpa_supplicant.conf
-  ctrl_iface exists and seems to be in use - cannot override it
-  Delete '/var/run/wpa_supplicant/wlan0' manually if it is not used anymore
-  Failed to initialize control interface 'DIR=/var/run/wpa_supplicant GROUP=netdev'.
-  You may have another wpa_supplicant process already running or the file was
-  left by an unclean termination of wpa_supplicant in which case you will need
-  to manually remove this file before starting wpa_supplicant again.
-dhclient wlan0
-
-#wlan down
-ifconfig wlan0 down
-wpa_cli terminate
-dhclient -r
-
-#scan for ssids
-wpa_cli scan_results | grep WPA | grep -v \x | awk '{print $NF}' | grep -v ]$
-iw wlan0 scan | egrep 'SSID: \w' | awk '{print $2}'
-
-#configure wpa file
