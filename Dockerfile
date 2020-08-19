@@ -1,5 +1,4 @@
-# FROM arm32v6/python:rc-alpine
-FROM arm32v6/alpine
+FROM arm32v6/python:rc-alpine
 
 WORKDIR /
 
@@ -14,9 +13,7 @@ RUN mkdir -p /etc/hostapd/
 
 COPY cfg/hostapd.conf /etc/hostapd/hostapd.conf
 COPY cfg/dnsmasq.conf /etc/dnsmasq.conf
-COPY cfg/sysctl.conf /etc/sysctl.conf
 COPY cfg/wpa_supplicant.conf /etc/wpa_supplicant/wpa_supplicant.conf
-COPY cfg/interfaces /etc/network/interfaces
 
 COPY app /app
 
