@@ -6,7 +6,6 @@ services:
     image: ygwifi:dev
     volumes:
       - /var/log:/var/log
-      - /var/run/dbus:/var/run/dbus
     network_mode: host
     privileged: true
     build: ./

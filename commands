@@ -1,28 +1,40 @@
-# at boot
+#boot
 1. start_wpa
-2. check if wlan0 has address
-3. if not:
-    1. check wpa_cli status
-    2. if COMPLETED
-        go to 4.
-    3. if INACTIVE|DISCONNECTED
+2. check wpa_cli status
+    1. if COMPLETED
+        1. go to 3.
+    2. if INACTIVE|DISCONNECTED
         1. wpa_supplicant.conf isn't configured
-        2. go to 7.
-4. dhclient wlan0
-5. check wlan address, confirm connection
-6. run sensors
-7. listen for button
+        2. go to 5
+        3. red light
+    3. if SCANNING
+        1. creds are wrong
+        2. go to 5
+        3. red light
+3. dhclient wlan0
+4. confirm connection
+    1. if yes:
+        1. run sensors
+        2. green light
+    2. if no:
+        1. red light
+5. listen for button
 
-# at button
-1. turn down wlan0
-2. enable ap0
-3. launch web
+
+#button
+1. enable ap0
+2. launch web
     1. scan for ssids
-4. ap0 should only be up temporarily. 
+    2. user inputs creds
+    3. attempt to connect
+        1. go to step 1 in #boot
+3. ap0 should only be up temporarily. 
     set a timer. 10 mins?
     after timer:
         disable ap0
         bounce wlan0
+4. listen for button
+
 
 #wpaup
 wpa_supplicant -B -i wlan0 -c /etc/wpa_supplicant/wpa_supplicant.conf
@@ -53,13 +65,117 @@ rm /var/run/wpa_supplicant/wlan0
 #ap up
 rm /var/run/hostapd/ap0
 iw phy phy0 interface add ap0 type __ap
-ifconfig ap0 up
-ifconfig ap0 192.168.100.1
-hostapd -B /etc/hostapd/hostapd.conf
+ifconfig ap0 up 192.168.100.1
 dnsmasq
+hostapd -B /etc/hostapd/hostapd.conf
 
 #ap down
 ifconfig ap0 down
 iw dev ap0 del
 killall hostapd dnsmasq
+
+source-directory /etc/network/interfaces.d
+auto lo
+iface lo inet loopback
+
+iface wlan1 inet manual
+        pre-up wpa_supplicant -B -i wlan1 -c /etc/wpa_supplicant/wpa_supplicant.conf
+        post-up sleep 1
+        post-up dhclient -v wlan1
+        wpa-conf /etc/wpa_supplicant/wpa_supplicant.conf
+
+iface ap0 inet static
+        pre-up iw phy phy0 interface add ap0 type __ap
+        post-up hostapd -B /etc/hostapd/hostapd.conf
+        post-up dnsmasq
+        post-down killall dnsmasq hostapd
+        address 192.168.100.1
+        netmask 255.255.255.0
+        hostapd /etc/hostapd/hostapd.conf
+
+
+
+i have a kernel/driver question, and not sure what i should be googling to find an answer.
+
+i have a pi zero W. it has a single broadcom wifi chip on it. 
+i can use `iw` and `hostapd` to run a virtual hotspot.
+i can host a web server that is accessible via this hotspot.
+
+on the web server is a page that shows you nearby wifi ssids, let's you pick one and submit password so that the pi can connect to that wifi
+The pi can then transmit sensor data to a cloud database
+
+there are two problems i'm having
+
+1. while the ap is up, if i turn up the wlan side it will momentarily drop the ap signal and my phone will have to reconnect
+
+where would i start in figuring this out? 
+
+
+sudo pipework --direct-phys mac:b8:27:eb:e4:72:a6 -i cont0 fa64921b91a9 0/0
+
+docker network create --subnet 192.168.100.0/24 --gateway 192.168.100.1 --driver macvlan -o parent=wlan0 vmnet
+docker network create --subnet 192.168.122.0/24 --gateway 192.168.122.1 --driver macvlan -o parent=wlan0 vmnet
+
+
+
+server=$(docker run -d --privileged yg/wifi)
+NAMESPACE=$(docker inspect --format='{{ .State.Pid }}' $server)
+sudo iw phy phy0 set netns $NAMESPACE
+
+
+country=US
+ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
+update_config=1
+p2p_disabled=1
+
+network={
+    ssid="thouartcreepy2gs"
+    psk="holyghosts"
+}
+
+driver=test
+interface=ap0
+logger_stdout=-1
+logger_stdout_level=0
+debug=2
+dump_file=/tmp/hostapd.dump
+test_socket=/tmp/Test/ap0
+ssid=jkm-test-psk
+wpa=1
+wpa_key_mgmt=WPA-PSK
+wpa_pairwise=TKIP
+wpa_passphrase=12345678
+
+
+
+
+wpa_status_out = Popen(['wpa_cli', 'status'], 
+    stdout=PIPE, universal_newlines=True)
+
+wpa_status = {fld.split('=')[0]:fld.split('=')[1].strip() 
+    for fld in wpa_status_out.stdout.readlines()[1::]}
+
+print(wpa_status)
+
+
+for fld in wpa_status_out.stdout.readlines()[1::]:
+    field = fld.split('=')
+    print(field)
+    wpa_status[field[0]] = field[1].strip()
+
+
+print(wpa_status)
+
+
+from subprocess import Popen, PIPE
+wpa_passphrase = Popen(
+    ['wpa_passphrase', f'"testtest"', f'"testtest"'], 
+    universal_newlines=True, stdout=PIPE
+).stdout.readlines()
+
+# get hash from output
+for line in wpa_passphrase:
+    if 'psk' in line and '#' not in line:
+        passphrase = line.strip().replace('psk=','')
+        break
 
