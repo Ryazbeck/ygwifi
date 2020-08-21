@@ -1,11 +1,13 @@
 version: "3.8"
 
 services:
-  ygwifi:
-    container_name: ygwifi
-    image: ygwifi:dev
-    volumes:
-      - /var/log:/var/log
-    network_mode: host
-    privileged: true
-    build: ./
+    ygwifi:
+        container_name: ygwifi
+        image: ygwifi:dev
+        volumes:
+            - /var/log:/var/log
+        network_mode: host
+        privileged: true
+        build: ./
+        sysctls:
+            - net.ipv6.conf.all.disable_ipv6=1
