@@ -14,7 +14,6 @@ RUN mkdir -p /etc/hostapd/
 COPY cfg/hostapd.conf /cfg/hostapd.conf
 COPY cfg/dnsmasq.conf /cfg/dnsmasq.conf
 COPY cfg/wpa_supplicant.conf /cfg/wpa_supplicant.conf
-COPY cfg/interfaces /etc/network/
 
 COPY app /app
 

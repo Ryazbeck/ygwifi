@@ -1,0 +1,17 @@
+iface wlan1 inet dhcp
+        pre-up killall wpa_supplicant dhclient
+        pre-up wpa_supplicant -B -i wlan1 -c /cfg/wpa_supplicant.conf
+        post-down killall wpa_supplicant dhclient 
+        post-down ip addr flush wlan1
+        wpa-conf /cfg/wpa_supplicant.conf
+
+iface ap0 inet static
+        pre-up killall dnsmasq hostapd
+        pre-up iw phy phy0 interface add ap0 type __ap
+        post-up hostapd -B /etc/hostapd/hostapd.conf
+        post-up dnsmasq
+        post-down killall dnsmasq hostapd
+        post-down ip addr flush ap0
+        address 192.168.100.1
+        netmask 255.255.255.0
+        hostapd /etc/hostapd/hostapd.conf

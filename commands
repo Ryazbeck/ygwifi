@@ -129,10 +129,6 @@ update_config=1
 p2p_disabled=1
 
 network={
-    ssid="thouartcreepy2gs"
-    psk="holyghosts"
-}
-
 driver=test
 interface=ap0
 logger_stdout=-1
@@ -178,4 +174,18 @@ for line in wpa_passphrase:
     if 'psk' in line and '#' not in line:
         passphrase = line.strip().replace('psk=','')
         break
+
+
+
+sudo systemctl unmask wpa_supplicant.service
+sudo mv /sbin/no_wpa_supplicant /sbin/wpa_supplicant
+sudo systemctl start wpa_supplicant
+sudo ifdown --force wlan1
+sudo ifup wlan1
+
+sudo ifdown --force wlan1
+sudo systemctl mask wpa_supplicant.service
+sudo mv /sbin/wpa_supplicant /sbin/no_wpa_supplicant
+sudo pkill wpa_supplicant
+sudo pkill dhclient
 

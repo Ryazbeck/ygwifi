@@ -23,6 +23,32 @@ handler = logging.handlers.RotatingFileHandler(
 logger.addHandler(handler)
 
 
+# helper funcs
+def run_commands(commands, success_message='Success'):
+    for cmd in commands:
+        try:
+            check_call(cmd)
+        except CalledProcessError as e:
+            logger.info(e)
+            return False
+
+    return True
+
+
+def remove_file(file_path=None):
+    if path.exists(file_path):
+        logger.debug(f'{file_path} exists. removing')
+        try:
+            os.remove(file_path)
+        except Exception as e:
+            logger.info(f'failed to remove {file_path}: {e}')
+            return False
+    else:
+        logger.info(f'{file_path} does not exist.')
+
+    return True
+
+
 def update_wpa_conf(ssid=None, key=None):
     logger.debug('Updating wpa_supplicant.conf')
 
@@ -69,28 +95,6 @@ def update_wpa_conf(ssid=None, key=None):
         return False
 
 
-def start_wpa_supplicant():
-    '''
-    Enables scan for ssids
-    If wpa_supplicant is configured station will connect to wifi
-    '''
-
-    logger.debug('Starting wpa_supplicant')
-
-    try:
-        check_call(['killall', 'wpa_supplicant'])
-        check_call([
-            'wpa_supplicant',
-            '-B',
-            '-i', 'wlan1',
-            '-c', '/cfg/wpa_supplicant.conf'
-        ])
-        return True
-    except Exception as e:
-        logger.warning(f'wpa_supplicant failed to start: {e}')
-        return False
-
-
 def wpa_status():
     logger.debug('Retrieving wpa_cli status')
 
@@ -112,31 +116,93 @@ def wpa_status():
     return wpa_status
 
 
-def wlanup_cmd():
-    logger.debug('Enabling wlan1')
+def start_wpa():
+    '''
+    Enables scan for ssids
+    If wpa_supplicant is configured station will connect to wifi
+    '''
+
+    logger.debug('Starting wpa_supplicant')
 
     try:
-        check_call(['ifup', 'wlan1'])
+        check_call(['killall', 'wpa_supplicant'])
+        check_call([
+            'wpa_supplicant',
+            '-B',
+            '-i', 'wlan1',
+            '-c', '/cfg/wpa_supplicant.conf'
+        ])
         return True
     except Exception as e:
-        logger.info('Failed to enable wlan1')
+        logger.warning(f'wpa_supplicant failed to start: {e}')
         return False
 
 
-def wlanup_response():
-    if wlanup_cmd():
-        return Response('wlan1 enabled', 200)
-    return Response(f'Failed to enable wlan1: {e}', 500)
+def get_ip():
+    logger.debug('Requesting IP address')
+
+    try:
+        check_call(['killall', 'dhclient'])
+        check_call(['dhclient', '-v', 'wlan1'])
+        return True
+    except Exception as e:
+        debug.info(f'dhclient failed to get IP: {e}')
+        return False
+
+
+def _connected():
+    connected = os.system('ping -c 1 google.com')
+    if connected == 0:
+        return True
+    return False
+
+
+def _connect(initialize=False):
+    # initialize will return True even if wpa_state isn't COMPLETED
+    logger.debug('Connect to wifi')
+
+    if start_wpa():
+        if wpa_status()['wpa_state'] != 'COMPLETED':
+            # there are no creds or they are wrong
+            logger.info(f'wifi is not authenticated')
+        
+            if initialize:
+                # we can end initialization here and wait for user to update
+                return True
+            return False
+
+        elif not get_ip():
+            logger.critical(f'failed to get IP address')
+            return False
+
+    return True
+
+
+def _scan():
+    logger.debug('Scanning for ssids')
+
+    try:
+        # the subsequent Popens are pipes to clean the results
+        scan_results = Popen(['iw', 'wlan0', 'scan'], 
+            stdout=PIPE, universal_newlines=True)
+        scan_ssids = Popen(['egrep', 'SSID: \w'], 
+            stdin=scan_results.stdout, stdout=PIPE, universal_newlines=True)
+        scan_ssids = Popen(['awk', '{print $2}'], 
+            stdin=scan_ssids.stdout, stdout=PIPE, universal_newlines=True)
+        ssids = list(set([ssid.strip() for ssid in scan_ssids.stdout.readlines()]))
+        ssids = ", ".join(ssids)
+
+        logger.debug(f'scan results:{ssids}')
+    except Exception as e:
+        logger.warning(f'Failed to get scan results: {e}')
+        return False
+    
+    return set(ssids)
 
 
 def initialize():
     logger.debug('Initializing ygwifi')
-
-    start_wpa_supplicant()
-
-    if wpa_status()['wpa_state'] == 'COMPLETED':
-        return wlanup_cmd()
-    return True
+    _connect(initialize=True)
 
 
 # endpoints
@@ -157,67 +223,59 @@ def after_request(response):
 
 @app.route('/apup')
 def apup():
-    logger.debug('Enabling ap0')
+    logger.debug('Enabling AP')
 
-    try:
-        check_call(['ifup', 'ap0'])
-        return Response('ap0 enabled', 200)
-    except Exception as e:
-        logger.info('Failed to enable ap0')
-        return Response('Failed to enable ap0:', 500
+    commands = [
+        ['iw', 'phy', 'phy0', 'interface', 'add', 'ap0', 'type', '__ap'],
+        ['ifconfig', 'ap0', 'up', '192.168.100.1'],
+        ['hostapd', '-B', '/etc/hostapd/hostapd.conf'],
+        ['dnsmasq']
+    ]
+    
+    if run_commands(commands):
+        return Response('AP enabled', 200)
+
+    return Response('Failed to enable AP:', 500)
 
 
 @app.route('/apdown')
 def apdown():
-    logger.debug('Disabling ap0')
+    logger.debug('Disabling AP')
 
-    try:
-        check_call(['ifdown', 'ap0'])
-        return Response('ap0 disabled', 200)
-    except Exception as e:
-        logger.info('Failed to disable ap0')
-        return Response('Failed to disable ap0:', 500
+    commands = [
+        ['ifconfig', 'ap0', 'down'],
+        ['killall', 'hostapd', 'dnsmasq']
+    ]
+    
+    if run_commands(commands):
+        return Response('AP disabled', 200)
+
+    return Response('Failed to disable AP', 500)
 
 
 @app.route('/scan')
 def scan():
-    logger.debug('Scanning for ssids')
-
-    try:
-        # subsequent Popens are pipes to clean the results
-        scan_results = Popen(['iw', 'wlan0', 'scan'], 
-            stdout=PIPE, universal_newlines=True)
-        scan = Popen(['egrep', 'SSID: \w'], 
-            stdin=scan_results.stdout, stdout=PIPE, universal_newlines=True)
-        scan = Popen(['awk', '{print $2}'], 
-            stdin=scan.stdout, stdout=PIPE, universal_newlines=True)
-        ssids = list(set([ssid.strip() for ssid in scan.stdout.readlines()]))
-        ssids = ", ".join(ssids)
-
-        logger.debug(f'scan results:{ssids}')
+    if wpa_status():
+        ssids = _scan()
         if ssids:
-        return Response(str(ssids), 200)
+            return Response(str(ssids), 200)
 
-    except Exception as e:
-        logger.warning(f'Scan failed: {e}')
-        return Response('Scan failed', 500)
-
-
-@app.route('/wlanup')
-def wlanup():
-    return wlanup_response()
+    return Response('Scan failed', 500)
 
 
 @app.route('/wlandown')
 def wlandown():
-    logger.debug('Disabling wlan1')
-
-    try:
-        check_call(['ifdown', 'wlan1'])
+    logger.debug('turning down wifi')
+    commands = [
+        ['ifconfig', 'wlan1', 'down'],
+        ['killall', 'wpa_supplicant', 'dhclient'],
+        ['ip', 'addr', 'flush', 'wlan1'],
+    ]
+    
+    if run_commands(commands):
         return Response('wlan1 disabled', 200)
-    except Exception as e:
-        logger.info('Failed to disable wlan1')
-        return Response('Failed to disable wlan1:', 500
+
+    return Response('Failed to disable wlan1', 500)
     
 
 @app.route('/connect')
@@ -232,7 +290,8 @@ def connect():
             return Response('Failed to update wpa_supplicant.conf', 500)
         elif not _connect():
             return Response('Failed to establish connection', 500)
-        return wlanup_response()
+        else:
+            return Response('connection established', 200)
 
     # missing parameters
     elif ssid and key is None:
@@ -248,9 +307,9 @@ def connect():
 
 @app.route('/connected')
 def connected():
-    connected = os.system('ping -c 1 google.com')
-    if connected == 0:
+    if _connected():
         return Response('Success', 200)
+
     return Response('Failure', 500)
 
 
