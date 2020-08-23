@@ -1,5 +1,13 @@
 from flask import Flask, request, Response, jsonify, make_response, abort
-from subprocess import check_call, run, CalledProcessError, Popen, PIPE
+from subprocess import (
+    check_call,
+    check_output,
+    run,
+    CalledProcessError,
+    Popen,
+    PIPE,
+    STDOUT,
+)
 import logging, sys, json_logging
 from time import sleep
 
@@ -11,9 +19,7 @@ def update_wpa_conf(ssid=None, key=None):
 
     # hash the key
     wpa_passphrase = Popen(
-        ["wpa_passphrase", f'"{ssid}"', f'"{key}"'],
-        universal_newlines=True,
-        stdout=PIPE,
+        ["wpa_passphrase", f"{ssid}", f"{key}"], universal_newlines=True, stdout=PIPE,
     ).stdout.readlines()
 
     # get hash from output
@@ -55,15 +61,20 @@ def update_wpa_conf(ssid=None, key=None):
 
 def start_wpa_supplicant():
     """
-    Enables scan for ssids
-    If wpa_supplicant is configured station will connect to wifi
+    wpa_supplicant handles authentication
+    if wpa_supplicant isn't configured then we can only scan for ssids
+    if it's configured then it should obtain an ip address
     """
 
     logger.debug("Starting wpa_supplicant")
 
     try:
         check_call(["killall", "wpa_supplicant"])
+    except CalledProcessError as e:
+        logger.debug(e)
+
         sleep(1)
+    try:
         check_call(
             ["wpa_supplicant", "-B", "-i", "wlan1", "-c", "/cfg/wpa_supplicant.conf"]
         )
@@ -99,15 +110,15 @@ def wlanup_cmd():
     logger.debug("Enabling wlan1")
 
     try:
-        check_call(["ifup", "wlan1"])
+        check_output(["ifup", "wlan1"], stderr=STDOUT)
         return True
     except CalledProcessError as e:
-        logger.info(f"Failed to enable wlan1: {e}")
+        logger.info(f"Failed to enable wlan1: {e.output}")
         return False
 
 
 def wlanup_response():
     """Turns up wlan and returns a response"""
     if wlanup_cmd():
-        return jsonify({"wlan1 enabled"})
+        return jsonify({"response": "wlan1 enabled"})
     return make_response(jsonify({"response": "Failed to enable wlan1"}), 500)

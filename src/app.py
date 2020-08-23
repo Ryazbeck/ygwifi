@@ -21,15 +21,15 @@ json_logging.init_request_instrument(app)
 logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
 logger.addHandler(logging.StreamHandler(sys.stdout))
-handler = logging.handlers.RotatingFileHandler(
-    filename="/var/log/ygwifi.log",
-    mode="a",
-    maxBytes=5 * 1024 * 1024,
-    backupCount=2,
-    encoding=None,
-    delay=0,
-)
-logger.addHandler(handler)
+# handler = logging.handlers.RotatingFileHandler(
+# filename="/var/log/ygwifi.log",
+#     mode="a",
+#     maxBytes=5 * 1024 * 1024,
+#     backupCount=2,
+#     encoding=None,
+#     delay=0,
+# )
+# logger.addHandler(handler)
 
 
 # endpoints
@@ -98,11 +98,10 @@ def scan():
             universal_newlines=True,
         )
         ssids = list(set([ssid.strip() for ssid in scan.stdout.readlines()]))
-        ssids = ", ".join(ssids)
 
-        logger.debug(f"scan results:{ssids}")
+        logger.debug(f"scan results:{', '.join(ssids)}")
         if ssids:
-            return (jsonify({"response": str(ssids)}),)
+            return jsonify({"response": ssids})
         else:
             return make_response(jsonify({"response": "No SSIDs found"}), 404)
 
@@ -131,6 +130,12 @@ def wlandown():
 
 @app.route("/connect", methods=["POST"])
 def connect():
+    """
+    takes ssid and key
+    updates wpa_supplicant.conf
+    turns up wlan1
+    """
+
     if not request.json:
         abort(400)
 
@@ -148,6 +153,7 @@ def connect():
             return make_response(
                 jsonify({"response": "Failed to establish connection"}), 500
             )
+
         return wlanup_response()
 
     # missing parameters
@@ -159,11 +165,13 @@ def connect():
         response = "key not submitted"
 
     logger.info(response)
+
     return make_response(jsonify({"response": response}), 500)
 
 
 @app.route("/connected")
 def connected():
+    """ping test"""
     try:
         check_call(["ping", "-c", "1", "google.com"])
         return jsonify({"response": "Success"})

@@ -36,6 +36,10 @@
 4. listen for button
 
 
+#logpath
+docker inspect --format='{{.LogPath}}' ygwifi
+sudo tail `docker inspect --format='{{.LogPath}}' ygwifi`
+
 #wpaup
 wpa_supplicant -B -i wlan1 -c /cfg/wpa_supplicant.conf
 wpa_supplicant -B -Dnl80211 -dd -i wlan0 -c /etc/wpa_supplicant/wpa_supplicant.conf
