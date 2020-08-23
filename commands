@@ -37,7 +37,7 @@
 
 
 #wpaup
-wpa_supplicant -B -i wlan0 -c /etc/wpa_supplicant/wpa_supplicant.conf
+wpa_supplicant -B -i wlan1 -c /cfg/wpa_supplicant.conf
 wpa_supplicant -B -Dnl80211 -dd -i wlan0 -c /etc/wpa_supplicant/wpa_supplicant.conf
 
 #wlan has address
