@@ -36,6 +36,10 @@
 4. listen for button
 
 
+curl -v -w "\n" -d '{"ssid":"thouartcreepy5g", "key":"holyghost"}' \
+     -H "Content-Type: application/json" \
+     -X POST localhost:5000/connect
+
 #logpath
 docker inspect --format='{{.LogPath}}' ygwifi
 sudo tail `docker inspect --format='{{.LogPath}}' ygwifi`
@@ -192,4 +196,12 @@ sudo systemctl mask wpa_supplicant.service
 sudo mv /sbin/wpa_supplicant /sbin/no_wpa_supplicant
 sudo pkill wpa_supplicant
 sudo pkill dhclient
+
+
+
+wpa_passphrase = Popen(
+    ["wpa_passphrase", f'thouart creepy2g', f'holy ghost'],
+    universal_newlines=True,
+    stdout=PIPE,
+)
 
