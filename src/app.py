@@ -38,67 +38,6 @@ def after_request(response):
     return response
 
 
-@app.route("/scan")
-def scan():
-    """Enables wlan1, scans for ssids, returns results as array of strings"""
-    logger.debug("Scanning for ssids")
-
-    if commands.start_wpa_supplicant():
-        abort(404)
-
-    ssids = commands.scan_for_ssids()
-
-    if ssids:
-        return jsonify({"response": ssids})
-    elif ssids is None:
-        return make_response(jsonify({"response": "No SSIDs found"}), 404)
-    else:
-        return make_response(jsonify({"response": "Scan failed"}), 500)
-
-
-@app.route("/connect", methods=["POST"])
-def connect():
-    """
-    takes ssid and key
-    updates wpa_supplicant.conf
-    turns up wlan1
-    """
-    logger.debug(f"Attempting to connect")
-
-    if not request.json:
-        abort(400)
-
-    ssid = request.json["ssid"]
-    key = request.json["key"]
-
-    if ssid and key:
-        logger.debug(f"SSID:{ssid} selected")
-
-        if not commands.update_wpa_conf(ssid, key):
-            return make_response(
-                jsonify({"response": "Failed to update wpa_supplicant.conf"}), 500
-            )
-        elif not commands.wlanup():
-            return make_response(jsonify({"response": "Failed to enable wlan1"}), 500)
-        else:
-            if commands.connected():
-                return jsonify({"response": "Connected"})
-
-        response = "Failed to connect"
-
-    # check for missing parameters
-    elif ssid is None and key is None:
-        response = "ssid and key not submitted"
-    elif ssid is None:
-        response = "ssid not submitted"
-    elif key is None:
-        response = "key not submitted"
-
-    logger.info(response)
-
-    return make_response(jsonify({"response": response}), 500)
-
-
 @app.route("/wpastatus")
 def wpastatus():
     """
@@ -144,13 +83,75 @@ def wpastatus():
         return make_response(jsonify({"response": "Failed to get wpa_status"}), 500)
 
 
+@app.route("/scan")
+def scan():
+    """
+    Enables wlan1
+    Scans for ssids
+    Returns results as array of strings
+    """
+
+    if commands.start_wpa_supplicant():
+        abort(404)
+
+    ssids = commands.scan_for_ssids()
+
+    if ssids:
+        return jsonify({"response": ssids})
+    elif ssids is None:
+        return make_response(jsonify({"response": "No SSIDs found"}), 404)
+    else:
+        return make_response(jsonify({"response": "Scan failed"}), 500)
+
+
+@app.route("/connect", methods=["POST"])
+def connect():
+    """
+    Takes ssid and key
+    Updates wpa_supplicant.conf
+    Turns up wlan1
+    """
+
+    if not request.json:
+        abort(400)
+
+    ssid = request.json["ssid"]
+    key = request.json["key"]
+
+    if ssid and key:
+        logger.debug(f"SSID:{ssid} selected")
+
+        if not commands.update_wpa_conf(ssid, key):
+            return make_response(
+                jsonify({"response": "Failed to update wpa_supplicant.conf"}), 500
+            )
+        elif not commands.wlanup():
+            return make_response(jsonify({"response": "Failed to enable wlan1"}), 500)
+        else:
+            if commands.connected():
+                return jsonify({"response": "Connected"})
+
+        response = "Failed to connect"
+
+    # check for missing parameters
+    elif ssid is None and key is None:
+        response = "ssid and key not submitted"
+    elif ssid is None:
+        response = "ssid not submitted"
+    elif key is None:
+        response = "key not submitted"
+
+    logger.info(response)
+
+    return make_response(jsonify({"response": response}), 500)
+
+
 @app.route("/apup")
 def apup():
     """
     Creates ap0 with 192.168.100.1
     Starts hostapd and dnsmasq 
     """
-    logger.debug("Enabling ap0")
 
     apup_out = commands.apup()
     if apup_out:
@@ -162,11 +163,10 @@ def apup():
 @app.route("/apdown")
 def apdown():
     """
-    Deletes ap0 with 192.168.100.1
+    Deletes ap0
     Kills hostapd and dnsmasq
     Flushes ip
     """
-    logger.debug("Disabling ap0")
 
     apdown_out = commands.apdown()
     if apdown_out:
@@ -189,8 +189,7 @@ def wlanup():
 
 @app.route("/wlandown")
 def wlandown():
-    """disables wlan1"""
-    logger.debug("Disabling wlan1")
+    """Disables wlan1"""
 
     wlandown_out = commands.wlandown()
 
@@ -202,7 +201,8 @@ def wlandown():
 
 @app.route("/connected")
 def connected():
-    """ping test"""
+    """Ping test"""
+
     if connected():
         return jsonify({"response": "Success"})
     else:

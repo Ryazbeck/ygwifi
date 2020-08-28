@@ -7,6 +7,9 @@ logger = logging.getLogger()
 
 def _check_output(command: List[str]):
     """generic handler for check_output"""
+
+    logger.debug(f"check_output: '{' '.join(command)}''")
+
     try:
         check_output(command)
         return True
@@ -15,7 +18,48 @@ def _check_output(command: List[str]):
         return False
 
 
+def wpa_status():
+    """
+    Checks that wpa_supplicant is running
+    Retrieves `wpa_cli status` and returns it as a dict
+    """
+
+    logger.debug("Retrieving wpa_cli status")
+
+    if check_call(["pgrep", "-f", "wpa_supplicant.conf"]) != 0:
+        if not start_wpa_supplicant():
+            return False
+
+    try:
+        wpa_status_out = Popen(
+            ["wpa_cli", "status"], stdout=PIPE, universal_newlines=True
+        )
+    except Exception as e:
+        logger.info(f"failed to get wpa_cli status: {e}")
+        return False
+
+    wpa_status = {}
+
+    for fld in wpa_status_out.stdout.readlines()[1::]:
+        field = fld.split("=")
+        wpa_status[field[0]] = field[1].strip()
+
+    logger.debug(f"wpa_cli status: {wpa_status}")
+
+    return wpa_status
+
+
 def scan_for_ssids():
+    """
+    If wpa_status is true then wpa_supplicant is running
+    Issue scan command and return SSIDs as an array
+    """
+
+    if not wpa_status():
+        return False
+
+    logger.debug("Scanning for SSIDs")
+
     try:
         scan_results = Popen(
             ["iw", "wlan1", "scan"], stdout=PIPE, universal_newlines=True
@@ -49,6 +93,11 @@ def scan_for_ssids():
 
 
 def update_wpa_conf(ssid=None, key=None):
+    """ 
+    hashes the user's wifi key
+    then adds network with ssid and psk to wpa_supplicant.conf 
+    """
+
     logger.debug("Updating wpa_supplicant.conf")
 
     # hash the key
@@ -110,37 +159,13 @@ def start_wpa_supplicant():
     )
 
 
-def wpa_status():
-    logger.debug("Retrieving wpa_cli status")
-
-    if check_call(["pgrep", "-f", "wpa_supplicant.conf"]) != 0:
-        if not start_wpa_supplicant():
-            return False
-
-    try:
-        wpa_status_out = Popen(
-            ["wpa_cli", "status"], stdout=PIPE, universal_newlines=True
-        )
-    except Exception as e:
-        logger.info(f"failed to get wpa_cli status: {e}")
-        return False
-
-    wpa_status = {}
-
-    for fld in wpa_status_out.stdout.readlines()[1::]:
-        field = fld.split("=")
-        wpa_status[field[0]] = field[1].strip()
-
-    logger.debug(f"wpa_cli status: {wpa_status}")
-
-    return wpa_status
-
-
 def apup():
+    logger.debug("Enabling ap0")
     return _check_output(["ifup", "ap0"])
 
 
 def apdown():
+    logger.debug("Disabling ap0")
     return _check_output(["ifdown", "ap0"])
 
 
@@ -155,5 +180,5 @@ def wlandown():
 
 
 def connected():
-    logger.debug("Disabling wlan1")
+    logger.debug("Testing connectivity")
     return _check_output(["ping", "-c", "1", "google.ccom"])

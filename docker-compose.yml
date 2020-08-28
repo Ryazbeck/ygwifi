@@ -19,3 +19,5 @@ services:
         dns:
             - 8.8.8.8
             - 8.8.4.4
+        environment:
+            FLASK_APP: "app.py"
