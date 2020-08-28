@@ -22,16 +22,27 @@ Tested on a Raspberry Pi Zero W with [Hypriot](https://blog.hypriot.com/download
 
 ### Dongles
 
-Here's the cheapest I could find:
+Due to unexpected behavior with Pi Zero W onboard wifi chipset when using both the managed wifi and the ap hotspot. Examples:
+
+- The hotspot must be enabled before managed or the hotspot won't come up at all
+- The hotspot will drop momentarily when you bring up managed (interrupts captive portal)
+- If you want to disable the hotspot after connecting managed you must turn them both down and turn managed up again.
+
+Not the most elegant solution, but it works. If you know how to fix the unexpected behavior with using the onboard chipset please [open an issue](https://github.com/Ryazbeck/ygwifi/issues/new).
+
+Here's the cheapest/smallest I could find, but anything should work as long as you can find a driver:
 
 - [Dongle](https://www.ebay.com/itm/NEW-2018-Mini-USB-WiFi-WLAN-Wireless-Network-Adapter-802-11-Dongle-RTL8188-lapto/143202387869)
-- [USB A-to-micro adapter](https://www.amazon.com/gp/product/B015GZOHKW/ref=ppx_yo_dt_b_asin_title_o07_s00?ie=UTF8&psc=1)
 
-Driver for that particular dongle:
+Here's the driver for that dongle:
 
-- [Driver rtl8188fu](https://github.com/kelebek333/rtl8188fu/tree/arm#how-to-install-for-arm-devices)
+- [rtl8188fu](https://github.com/kelebek333/rtl8188fu/tree/arm#how-to-install-for-arm-devices)
 
-Not the most elegant solution, but it works. If you know how to fix the [unexpected behavior](#Dongle) with using the onboard chipset please [open an issue](https://github.com/Ryazbeck/ygwifi/issues/new).
+You'll need to convert USB to micro if you're using a Zero, here's a few sources:
+
+- [Amazon](https://www.amazon.com/gp/product/B015GZOHKW/ref=ppx_yo_dt_b_asin_title_o07_s00?ie=UTF8&psc=1)
+- [Adafruit](https://www.adafruit.com/product/2910)
+- [Digikey](https://www.digikey.com/product-detail/en/sparkfun-electronics/COM-14567/1568-1821-ND/8324538)
 
 <br>
 
@@ -98,13 +109,3 @@ curl http://localhost:5000/connected
      ```
      docker-compose -f docker-compose.yml -f docker-compose.prod.yml up --build -d
      ```
-
-<br>
-
-#### Dongle
-
-##### Due to unexpected behavior with Pi Zero W onboard wifi chipset when using both the managed wifi and the ap hotspot. Examples:
-
-- ##### The hotspot must be enabled before managed or the hotspot won't come up at all
-- ##### The hotspot will drop momentarily when you bring up managed (interrupts captive portal)
-- ##### If you want to disable the hotspot after connecting managed you must turn them both down and turn managed up again.
