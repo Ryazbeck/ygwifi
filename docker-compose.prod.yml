@@ -1,0 +1,7 @@
+version: "3.8"
+
+services:
+    ygwifi:
+        image: ygwifi:prod
+        environment:
+            FLASK_ENV: "Production"

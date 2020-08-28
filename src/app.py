@@ -1,15 +1,6 @@
 from flask import Flask, request, Response, jsonify, make_response, abort
-from subprocess import check_call, run, CalledProcessError, Popen, PIPE
-from datetime import datetime as dt
-from time import sleep
-import datetime, logging, os, sys, json_logging
-from helpers import (
-    update_wpa_conf,
-    start_wpa_supplicant,
-    wpa_status,
-    wlanup_cmd,
-    wlanup_response,
-)
+import logging, os, sys, json_logging
+import commands
 
 FLASK_ENV = os.environ["FLASK_ENV"]
 
@@ -47,93 +38,78 @@ def after_request(response):
     return response
 
 
-@app.route("/apup")
-def apup():
-    logger.debug("Enabling ap0")
+@app.route("/wpastatus")
+def wpastatus():
+    """
+    wpa_status contains wpa_state so we can see if wpa auth'd successfully
+    front end can poll this endpoint and provide feedback (ie auth fail)
 
-    try:
-        check_call(["ifup", "ap0"])
-        return jsonify({"response": "ap0 enabled"})
-    except Exception as e:
-        response = f"Failed to enable ap0: {e}"
-        logger.warning(response)
-        return make_response(jsonify({"response": response}), 500)
+    wpa_status = { 
+        'bssid': "a8:9a:93:a4:00:e7"
+        'freq': "5180"
+        'ssid': "wifiname"
+        'id': "0"
+        'mode': "station"
+        'wifi_generation': "5"
+        'pairwise_cipher': "CCMP"
+        'group_cipher': "CCMP"
+        'key_mgmt': "WPA2-PSK"
+        'wpa_state': "COMPLETED"
+        'ip_address': "192.168.1.45"
+        'address': "1c:bf:ce:36:00:e0"
+        'uuid': "bf26e924-aeed-59ea-ad0f-6c12b316062d"
+        'ieee80211ac': "1"
+    }
 
+    possible wpa_states:
+        DISCONNECTED
+        INACTIVE
+        INTERFACE_DISABLED
+        SCANNING
+        AUTHENTICATING
+        ASSOCIATING
+        ASSOCIATED
+        4WAY_HANDSHAKE (auth failure)
+        GROUP_HANDSHAKE
+        COMPLETED
+        UNKNOWN
+    """
 
-@app.route("/apdown")
-def apdown():
-    logger.debug("Disabling ap0")
+    wpa_status_out = commands.wpa_status()
 
-    try:
-        check_call(["ifdown", "ap0"])
-        return jsonify({"response": "ap0 disabled"})
-    except Exception as e:
-        response = f"Failed to disable ap0: {e}"
-        logger.warning(response)
-        return make_response(jsonify({"response": response}), 500)
+    if wpa_status_out:
+        return jsonify({"response": wpa_status_out})
+    else:
+        return make_response(jsonify({"response": "Failed to get wpa_status"}), 500)
 
 
 @app.route("/scan")
 def scan():
-    logger.debug("Scanning for ssids")
+    """
+    Enables wlan1
+    Scans for ssids
+    Returns results as array of strings
+    """
 
-    if not start_wpa_supplicant():
+    if commands.start_wpa_supplicant():
         abort(404)
 
-    try:
-        # subsequent Popens are pipes to clean the results
-        scan_results = Popen(
-            ["iw", "wlan1", "scan"], stdout=PIPE, universal_newlines=True
-        )
-        scan = Popen(
-            ["egrep", r"SSID: \w"],
-            stdin=scan_results.stdout,
-            stdout=PIPE,
-            universal_newlines=True,
-        )
-        scan = Popen(
-            ["awk", "{print $2}"],
-            stdin=scan.stdout,
-            stdout=PIPE,
-            universal_newlines=True,
-        )
-        ssids = list(set([ssid.strip() for ssid in scan.stdout.readlines()]))
+    ssids = commands.scan_for_ssids()
 
-        logger.debug(f"scan results:{', '.join(ssids)}")
-        if ssids:
-            return jsonify({"response": ssids})
-        else:
-            return make_response(jsonify({"response": "No SSIDs found"}), 404)
-
-    except Exception as e:
-        logger.warning(f"Scan failed: {e}")
+    if ssids:
+        return jsonify({"response": ssids})
+    elif ssids is None:
+        return make_response(jsonify({"response": "No SSIDs found"}), 404)
+    else:
         return make_response(jsonify({"response": "Scan failed"}), 500)
-
-
-@app.route("/wlanup")
-def wlanup():
-    return wlanup_response()
-
-
-@app.route("/wlandown")
-def wlandown():
-    logger.debug("Disabling wlan1")
-
-    try:
-        check_call(["ifdown", "wlan1"])
-        return jsonify({"response": "wlan1 disabled"})
-    except Exception as e:
-        response = f"Failed to disable wlan1: {e}"
-        logger.info(response)
-        return make_response(jsonify({"response": response}), 500)
 
 
 @app.route("/connect", methods=["POST"])
 def connect():
     """
-    takes ssid and key
-    updates wpa_supplicant.conf
-    turns up wlan1
+    Takes ssid and key
+    Updates wpa_supplicant.conf
+    Turns up wlan1
     """
 
     if not request.json:
@@ -143,21 +119,22 @@ def connect():
     key = request.json["key"]
 
     if ssid and key:
-        logger.debug(f"connecting to {ssid}")
+        logger.debug(f"SSID:{ssid} selected")
 
-        if not update_wpa_conf(ssid, key):
+        if not commands.update_wpa_conf(ssid, key):
             return make_response(
                 jsonify({"response": "Failed to update wpa_supplicant.conf"}), 500
             )
-        elif not wlanup_cmd():
-            return make_response(
-                jsonify({"response": "Failed to establish connection"}), 500
-            )
+        elif not commands.wlanup():
+            return make_response(jsonify({"response": "Failed to enable wlan1"}), 500)
+        else:
+            if commands.connected():
+                return jsonify({"response": "Connected"})
 
-        return wlanup_response()
+        response = "Failed to connect"
 
-    # missing parameters
-    elif ssid and key is None:
+    # check for missing parameters
+    elif ssid is None and key is None:
         response = "ssid and key not submitted"
     elif ssid is None:
         response = "ssid not submitted"
@@ -169,14 +146,67 @@ def connect():
     return make_response(jsonify({"response": response}), 500)
 
 
+@app.route("/apup")
+def apup():
+    """
+    Creates ap0 with 192.168.100.1
+    Starts hostapd and dnsmasq 
+    """
+
+    apup_out = commands.apup()
+    if apup_out:
+        return jsonify({"response": "ap0 enabled"})
+    else:
+        return make_response(jsonify({"response": "failed to enable ap0"}), 500)
+
+
+@app.route("/apdown")
+def apdown():
+    """
+    Deletes ap0
+    Kills hostapd and dnsmasq
+    Flushes ip
+    """
+
+    apdown_out = commands.apdown()
+    if apdown_out:
+        return jsonify({"response": "ap0 disabled"})
+    else:
+        return make_response(jsonify({"response": "failed to disable ap0"}), 500)
+
+
+@app.route("/wlanup")
+def wlanup():
+    """Turns up wlan and returns a response"""
+
+    wlanup_out = commands.wlanup()
+
+    if wlanup_out:
+        return jsonify({"response": "wlan1 enabled"})
+    else:
+        return make_response(jsonify({"response": "Failed to enable wlan1"}), 500)
+
+
+@app.route("/wlandown")
+def wlandown():
+    """Disables wlan1"""
+
+    wlandown_out = commands.wlandown()
+
+    if wlandown_out:
+        return jsonify({"response": "wlan1 disabled"})
+    else:
+        return make_response(jsonify({"response": "Failed to disable wlan1"}), 500)
+
+
 @app.route("/connected")
 def connected():
-    """ping test"""
-    try:
-        check_call(["ping", "-c", "1", "google.com"])
+    """Ping test"""
+
+    if connected():
         return jsonify({"response": "Success"})
-    except CalledProcessError as e:
-        return make_response(jsonify({"response": f"Failure: {e}"}), 500)
+    else:
+        return make_response(jsonify({"response": "Failure"}), 500)
 
 
 if __name__ == "__main__":

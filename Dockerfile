@@ -18,7 +18,4 @@ RUN echo "RESOLV_CONF=no" > /etc/udhcpc/udhcpc.conf
 
 COPY src /
 
-ENV FLASK_APP 'app.py'
-ENV FLASK_ENV 'development'
-
 CMD flask run
