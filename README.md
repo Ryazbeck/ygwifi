@@ -10,7 +10,7 @@
 
 Controls managed wifi and AP hotspot separately with a simple API.
 
-- You'll need a wifi [dongle](#Dongles) ([why?](#Dongle)).
+- You'll need a wifi [dongle](#Dongles) ([why?](#Dongles)).
 
 Quoting [txwifi](https://github.com/txn2/txwifi) sums this project up:
 
