@@ -10,7 +10,7 @@
 
 Controls managed wifi and AP hotspot separately with a simple API.
 
-- You'll need a wifi [dongle](#Dongles) ([why?](#Dongles)).
+- You'll need a wifi [dongle](#Dongle).
 
 Quoting [txwifi](https://github.com/txn2/txwifi) sums this project up:
 
@@ -20,7 +20,7 @@ Very similar to [txwifi](https://github.com/txn2/txwifi), but you can safely dis
 
 Tested on a Raspberry Pi Zero W with [Hypriot](https://blog.hypriot.com/downloads/)
 
-### Dongles
+### Dongle
 
 Due to unexpected behavior with Pi Zero W onboard wifi chipset when using both the managed wifi and the ap hotspot. Examples:
 
