@@ -1,5 +1,12 @@
 variables:
-    GIT_DEPTH: 10
+    GIT_DEPTH: 5
+
+stages:
+    - build
+    - test
 
 build:
-    script: ls -al
+    script: docker-compose build
+
+test:
+    script: docker-compose up

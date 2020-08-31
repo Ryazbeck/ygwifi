@@ -5,3 +5,4 @@ services:
         image: ygwifi:prod
         environment:
             FLASK_ENV: "Production"
+        command: run flask

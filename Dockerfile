@@ -17,5 +17,3 @@ RUN mkdir /etc/udhcpc
 RUN echo "RESOLV_CONF=no" > /etc/udhcpc/udhcpc.conf
 
 COPY src /
-
-CMD flask run
