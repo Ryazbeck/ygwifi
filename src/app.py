@@ -203,7 +203,7 @@ def wlandown():
 def connected():
     """Ping test"""
 
-    if connected():
+    if commands.connected():
         return jsonify({"response": "Success"})
     else:
         return make_response(jsonify({"response": "Failure"}), 500)

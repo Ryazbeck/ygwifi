@@ -26,7 +26,9 @@ def wpa_status():
 
     logger.debug("Retrieving wpa_cli status")
 
-    if check_call(["pgrep", "-f", "wpa_supplicant.conf"]) != 0:
+    try:
+        check_call(["pgrep", "-f", "wpa_supplicant.conf"])
+    except:
         if not start_wpa_supplicant():
             return False
 
@@ -181,4 +183,4 @@ def wlandown():
 
 def connected():
     logger.debug("Testing connectivity")
-    return _check_output(["ping", "-c", "1", "google.ccom"])
+    return _check_output(["ping", "-c", "1", "google.com"])
