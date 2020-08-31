@@ -1,0 +1,5 @@
+variables:
+    GIT_DEPTH: 10
+
+build:
+    script: ls -al
