@@ -3,7 +3,6 @@ version: "3.8"
 services:
     ygwifi:
         container_name: ygwifi
-        image: ygwifi:dev
         volumes:
             - /var/log:/var/log
         network_mode: host

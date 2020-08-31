@@ -2,11 +2,7 @@ variables:
     GIT_DEPTH: 5
 
 stages:
-    - build
     - test
 
-build:
-    script: docker-compose build
-
 test:
-    script: docker-compose up
+    script: docker-compose up --build
