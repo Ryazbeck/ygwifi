@@ -5,4 +5,4 @@ services:
         image: ygwifi:dev
         environment:
             FLASK_ENV: "Development"
-        command: pip install pytest && pytest -v
+        command: bash -c "pip install pytest && pytest -v"

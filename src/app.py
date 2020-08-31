@@ -210,4 +210,4 @@ def connected():
 
 
 if __name__ == "__main__":
-    app.run(debug=FLASK_ENV == "development")
+    app.run()
