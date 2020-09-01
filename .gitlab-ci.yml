@@ -15,7 +15,8 @@ test:
         - sudo mv /sbin/wpa_supplicant /sbin/no_wpa_supplicant
         - sudo pkill wpa_supplicant
         - sudo pkill dhclient
-        - testoutput=$(docker-compose up --exit-code-from ygwifi) || exitcode=$?
+        - testoutput=$(docker-compose up --exit-code-from ygwifi)
+        - exitcode=$?
 
 after_script:
     - sudo systemctl unmask wpa_supplicant.service
