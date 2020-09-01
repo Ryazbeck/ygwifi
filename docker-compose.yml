@@ -7,14 +7,13 @@ services:
             - /var/log:/var/log
         network_mode: host
         privileged: true
-        build: ./
-        sysctls:
-            - net.ipv6.conf.all.disable_ipv6=1
         logging:
             driver: "json-file"
             options:
                 max-file: "5"
                 max-size: "2m"
+        sysctls:
+            - net.ipv6.conf.all.disable_ipv6=1
         dns:
             - 8.8.8.8
             - 8.8.4.4
