@@ -9,4 +9,17 @@ build:
     script: docker-compose build
 
 test:
-    script: docker-compose up
+    script:
+        - sudo ifdown --force wlan1
+        - sudo systemctl mask wpa_supplicant.service
+        - sudo mv /sbin/wpa_supplicant /sbin/no_wpa_supplicant
+        - sudo pkill wpa_supplicant
+        - sudo pkill dhclient
+        - docker-compose up --exit-code-from ygwifi
+
+after_script:
+    - sudo systemctl unmask wpa_supplicant.service
+    - sudo mv /sbin/no_wpa_supplicant /sbin/wpa_supplicant
+    - sudo systemctl start wpa_supplicant
+    - sudo ifdown --force wlan1
+    - sudo ifup wlan1

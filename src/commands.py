@@ -1,4 +1,4 @@
-from subprocess import check_call, check_output, CalledProcessError, Popen, PIPE
+from subprocess import check_call, check_output, CalledProcessError, Popen, PIPE, STDOUT
 from typing import List
 import logging
 
@@ -8,13 +8,14 @@ logger = logging.getLogger()
 def _check_output(command: List[str]):
     """generic handler for check_output"""
 
-    logger.debug(f"check_output: '{' '.join(command)}''")
+    logger.debug(f"check_output: '{' '.join(command)}'")
 
     try:
-        check_output(command)
+        check_output(command, stderr=STDOUT)
         return True
-    except Exception as e:
+    except CalledProcessError as e:
         logger.warning(e)
+        logger.warning(e.stderr)
         return False
 
 
