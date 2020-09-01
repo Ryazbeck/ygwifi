@@ -8,4 +8,4 @@ services:
             dockerfile: Dockerfile
         environment:
             FLASK_ENV: "Development"
-        command: /bin/sh -c "pip install pytest && pytest -v test.py"
+        command: pytest -v test.py
