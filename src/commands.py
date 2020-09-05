@@ -12,11 +12,11 @@ def _check_output(command: List[str]):
 
     try:
         check_output(command, stderr=STDOUT)
-        return True
     except CalledProcessError as e:
-        logger.warning(e)
-        logger.warning(e.stderr)
+        logger.warning(e, exc_info=True)
         return False
+    else:
+        return True
 
 
 def wpa_status():
