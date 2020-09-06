@@ -5,7 +5,7 @@ WORKDIR /
 RUN apk update
 RUN apk add wireless-tools iw ifupdown wpa_supplicant hostapd dnsmasq
 
-COPY requirements.test.txt requirements.txt
+COPY requirements.txt requirements.txt
 RUN pip install -r requirements.txt
 
 COPY cfg /cfg
