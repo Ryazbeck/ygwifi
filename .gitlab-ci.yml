@@ -22,7 +22,10 @@ test:
         - develop
 
 build-prod:
-    script: docker-compose build --build-arg FLASK_ENV=Production TAG=prod
+    script: docker-compose build \
+        --build-arg FLASK_ENV=production \
+        --build-arg LOG_LEVEL=WARNING \
+        --build-arg TAG=prod
     only:
         - master
 
