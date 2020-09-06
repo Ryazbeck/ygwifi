@@ -24,3 +24,4 @@ services:
         environment:
             FLASK_APP: "app.py"
             FLASK_ENV: ${FLASK_ENV:-Development}
+        restart: ${RESTART_POLICY:-always}

@@ -2,15 +2,31 @@ variables:
     GIT_DEPTH: 5
 
 stages:
-    - build
+    - build-dev
     - test
+    - build-prod
+    - push
+    - deploy
 
-build:
-    script: docker-compose build
+build-dev:
+    script:
+        - docker-compose up --build
     only:
         - develop
 
 test:
-    script: docker-compose up --exit-code-from ygwifi
+    script:
+        - pip install pytest
+        - pytest src/test.py
     only:
         - develop
+
+build-prod:
+    script: docker-compose build --build-arg FLASK_ENV=Production TAG=prod
+    only:
+        - master
+
+push:
+    script: docker push ryazbeck/ygwifi:prod
+    only:
+        - master
