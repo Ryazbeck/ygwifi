@@ -13,7 +13,7 @@ def _check_output(command: List[str]):
     try:
         check_output(command, stderr=STDOUT)
     except CalledProcessError as e:
-        logger.warning(e, exc_info=True)
+        logger.warning(str(e.output, "utf-8"))
         return False
     else:
         return True
@@ -184,4 +184,4 @@ def wlandown():
 
 def connected():
     logger.debug("Checking connectivity")
-    return _check_output(["ping", "-I", "wlan1" "-c", "1", "google.com"])
+    return _check_output(["ping", "-I", "wlan1", "-c", "1", "google.com"])

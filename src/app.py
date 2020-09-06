@@ -2,7 +2,15 @@ from flask import Flask, request, Response, jsonify, make_response, abort
 import logging, os, sys, json_logging
 import commands
 
-FLASK_ENV = os.environ["FLASK_ENV"]
+log_levels = {
+    "DEBUG": logging.DEBUG,
+    "INFO": logging.INFO,
+    "WARNING": logging.WARNING,
+    "ERROR": logging.ERROR,
+    "CRITICAL": logging.CRITICAL,
+}
+
+LOG_LEVEL = log_levels[os.getenv("LOG_LEVEL", "INFO")]
 
 app = Flask(__name__)
 
@@ -10,7 +18,7 @@ json_logging.init_flask(enable_json=True)
 json_logging.init_request_instrument(app)
 
 logger = logging.getLogger()
-logger.setLevel(logging.DEBUG)
+logger.setLevel(LOG_LEVEL)
 logger.addHandler(logging.StreamHandler(sys.stdout))
 # handler = logging.handlers.RotatingFileHandler(
 # filename="/var/log/ygwifi.log",
@@ -210,4 +218,4 @@ def connected():
 
 
 if __name__ == "__main__":
-    app.run(debug=FLASK_ENV == "Development")
+    app.run()
