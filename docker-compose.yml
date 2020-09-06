@@ -4,7 +4,7 @@ services:
     ygwifi:
         build: .
         container_name: ygwifi
-        image: ygwifi:${TAG:-dev}
+        image: ryazbeck/ygwifi:${TAG:-dev}
         volumes:
             - /var/log:/var/log
         network_mode: host

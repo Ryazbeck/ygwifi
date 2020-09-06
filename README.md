@@ -107,15 +107,8 @@ sudo pkill wpa_supplicant
 sudo ifdown --force wlan0 wlan1
 ```
 
-Run ygwifi as a service:
+Run ygwifi:
 
 ```
-git clone https://github.com/Ryazbeck/ygwifi.git
-sudo ygwifi/setup-service.sh
-```
-
-Or run ygwifi manually:
-
-```
-run --rm --name ygwifi ryazbeck/ygywifi:prod
+docker run -d --name ygwifi ryazbeck/ygwifi:dev
 ```
