@@ -2,27 +2,34 @@ variables:
     GIT_DEPTH: 5
 
 stages:
-    - build
+    - build-dev
     - test
+    - build-prod
+    - push
+    - deploy
 
-build:
-    script: docker-compose build
+build-dev:
+    script:
+        - docker-compose up --build -d
+    only:
+        - develop
 
 test:
     script:
-        - sudo ifdown --force wlan1
-        - sudo systemctl mask wpa_supplicant.service
-        - sudo mv /sbin/wpa_supplicant /sbin/no_wpa_supplicant
-        - sudo pkill wpa_supplicant
-        - sudo pkill dhclient
-        - testoutput=$(docker-compose up --exit-code-from ygwifi)
-        - exitcode=$?
+        - docker build . -t ryazbeck/ygwifi:test -f Dockerfile.test
+        - docker run --network=host ryazbeck/ygwifi:test
+    only:
+        - develop
 
-after_script:
-    - sudo systemctl unmask wpa_supplicant.service
-    - sudo mv /sbin/no_wpa_supplicant /sbin/wpa_supplicant
-    - sudo systemctl start wpa_supplicant
-    - sudo ifdown --force wlan1
-    - sudo ifup wlan1
-    - echo $testoutput
-    - /bin/sh -c "exit $exitcode"
+build-prod:
+    script: docker-compose build \
+        --build-arg FLASK_ENV=production \
+        --build-arg LOG_LEVEL=WARNING \
+        --build-arg TAG=prod
+    only:
+        - master
+
+push:
+    script: docker push ryazbeck/ygwifi:prod
+    only:
+        - master

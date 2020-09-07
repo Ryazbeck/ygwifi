@@ -1,30 +1,43 @@
 import json
+import requests
 import os
 import tempfile
 
 import pytest
 
-from app import app
+
+WIFI_SSID = os.getenv("WIFI_SSID", None)
+WIFI_KEY = os.getenv("WIFI_KEY", None)
 
 
-@pytest.fixture
-def client():
-    app.config["TESTING"] = True
+def test_ap():
+    apup = requests.get("http://localhost:5000/apup")
+    assert json.loads(apup.text)["response"] == "ap0 enabled"
 
-    with app.test_client() as client:
-        yield client
-
-
-# def test_wpastatus(client):
-#     wpastatus = client.get("wpastatus")
-#     assert b"Failed to get wpa_status" in wpastatus.response
+    apdown = requests.get("http://localhost:5000/apdown")
+    assert json.loads(apdown.text)["response"] == "ap0 disabled"
 
 
-def test_wlandown(client):
-    assert client.get("wlandown").status_code == 200
-    assert client.get("connected").status_code == 500
+def test_wlan():
+    # connected should fail
+    connected = requests.get("http://localhost:5000/connected")
+    assert json.loads(connected.text)["response"] == "Failure"
 
+    # enable wpa and confirm scan workls
+    wpa_status_down = requests.get("http://localhost:5000/wpastatus")
+    assert json.loads(wpa_status_down.text)["response"]["wpa_state"] == "DISCONNECTED"
 
-def test_wlanup(client):
-    assert client.get("wlanup").status_code == 200
-    assert client.get("connected").status_code == 200
+    scan = requests.get("http://localhost:5000/scan")
+    assert isinstance(json.loads(scan.text)["response"], list)
+
+    connect = requests.get(
+        "http://localhost:5000/connect", params={"ssid": WIFI_SSID, "key": WIFI_KEY}
+    )
+    assert json.loads(connect.text)["response"] == "Success"
+
+    wpa_status_up = requests.get("http://localhost:5000/wpastatus")
+    assert json.loads(wpa_status_up.text)["response"]["wpa_state"] == "COMPLETED"
+
+    connected = requests.get("http://localhost:5000/connected")
+    assert json.loads(connected.text)["response"] == "Success"
+

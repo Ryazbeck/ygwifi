@@ -2,11 +2,15 @@ version: "3.8"
 
 services:
     ygwifi:
+        build: .
+        image: ryazbeck/ygwifi:${TAG:-dev}
         container_name: ygwifi
         volumes:
             - /var/log:/var/log
         network_mode: host
         privileged: true
+        ports:
+            - 5000:5000
         logging:
             driver: "json-file"
             options:
@@ -19,3 +23,6 @@ services:
             - 8.8.4.4
         environment:
             FLASK_APP: "app.py"
+            FLASK_ENV: ${FLASK_ENV:-development}
+            LOG_LEVEL: ${LOG_LEVEL:-DEBUG}
+        restart: ${RESTART_POLICY:-always}

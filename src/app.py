@@ -2,7 +2,15 @@ from flask import Flask, request, Response, jsonify, make_response, abort
 import logging, os, sys, json_logging
 import commands
 
-FLASK_ENV = os.environ["FLASK_ENV"]
+log_levels = {
+    "DEBUG": logging.DEBUG,
+    "INFO": logging.INFO,
+    "WARNING": logging.WARNING,
+    "ERROR": logging.ERROR,
+    "CRITICAL": logging.CRITICAL,
+}
+
+LOG_LEVEL = log_levels[os.getenv("LOG_LEVEL", "INFO")]
 
 app = Flask(__name__)
 
@@ -10,7 +18,7 @@ json_logging.init_flask(enable_json=True)
 json_logging.init_request_instrument(app)
 
 logger = logging.getLogger()
-logger.setLevel(logging.DEBUG)
+logger.setLevel(LOG_LEVEL)
 logger.addHandler(logging.StreamHandler(sys.stdout))
 # handler = logging.handlers.RotatingFileHandler(
 # filename="/var/log/ygwifi.log",
@@ -91,8 +99,10 @@ def scan():
     Returns results as array of strings
     """
 
-    if commands.start_wpa_supplicant():
-        abort(404)
+    if not commands.start_wpa_supplicant():
+        return make_response(
+            jsonify({"response": "Failed to start wpa_supplicant"}), 404
+        )
 
     ssids = commands.scan_for_ssids()
 
@@ -210,4 +220,4 @@ def connected():
 
 
 if __name__ == "__main__":
-    app.run(debug=FLASK_ENV == "Development")
+    app.run()
