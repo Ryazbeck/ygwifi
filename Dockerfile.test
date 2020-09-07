@@ -4,6 +4,6 @@ WORKDIR /
 
 RUN pip install pytest requests
 
-COPY /src/test.py /
+COPY src/test.py /
 
 CMD pytest test.py

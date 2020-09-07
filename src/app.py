@@ -99,8 +99,10 @@ def scan():
     Returns results as array of strings
     """
 
-    if commands.start_wpa_supplicant():
-        abort(404)
+    if not commands.start_wpa_supplicant():
+        return make_response(
+            jsonify({"response": "Failed to start wpa_supplicant"}), 404
+        )
 
     ssids = commands.scan_for_ssids()
 

@@ -178,4 +178,4 @@ def wlandown():
 
 def connected():
     logger.debug("Checking connectivity")
-    return _check_output(["ping", "-I", "wlan1", "-c", "1", "google.com"])
+    return _check_output(["ping", "-I", "wlan1", "-c", "1", "-W", "1", "google.com"])

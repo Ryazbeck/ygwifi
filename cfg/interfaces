@@ -13,8 +13,6 @@ iface ap0 inet static
         pre-up iw phy phy0 interface add ap0 type __ap
         post-up hostapd -B /cfg/hostapd.conf
         post-up dnsmasq -C /cfg/dnsmasq.conf
-        post-down killall dnsmasq hostapd || true
-        post-down ip addr flush ap0
         post-down iw dev ap0 del
         address 192.168.100.1
         netmask 255.255.255.0

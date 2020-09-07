@@ -15,10 +15,9 @@ build-dev:
         - develop
 
 test:
-    script: docker run --build \
-        --name ygwifi-test \
-        --network host \
-        --file Dockerfile.test
+    script:
+        - docker build . -t ryazbeck/ygwifi:test -f Dockerfile.test
+        - docker run --network=host ryazbeck/ygwifi:test
     only:
         - develop
 
