@@ -12,11 +12,26 @@ def _check_output(command: List[str]):
 
     try:
         check_output(command, stderr=STDOUT)
-    except CalledProcessError as e:
-        logger.warning(str(e.output, "utf-8"))
+    except Exception as e:
+        logger.warning(e)
         return False
     else:
         return True
+
+
+def start_wpa_supplicant():
+    """
+    Starting this service is already handled in interfaces for ifup and ifdown
+    But scan still needs to be able to use wpa_supplicant for finding SSIDs
+    """
+
+    logger.debug("Starting wpa_supplicant")
+
+    _check_output(["killall", "wpa_supplicant"])
+
+    return _check_output(
+        ["wpa_supplicant", "-B", "-i", "wlan1", "-c", "/cfg/wpa_supplicant.conf"]
+    )
 
 
 def wpa_status():
@@ -27,11 +42,7 @@ def wpa_status():
 
     logger.debug("Retrieving wpa_cli status")
 
-    try:
-        check_call(["pgrep", "-f", "wpa_supplicant.conf"])
-    except:
-        if not start_wpa_supplicant():
-            return False
+    start_wpa_supplicant()
 
     try:
         wpa_status_out = Popen(
@@ -143,23 +154,6 @@ def update_wpa_conf(ssid=None, key=None):
     except Exception as e:
         logger.info(e)
         return e
-
-
-def start_wpa_supplicant():
-    """
-    Starting this service is already handled in interfaces for ifup and ifdown
-    But scan still needs to be able to use wpa_supplicant for finding SSIDs
-    """
-
-    logger.debug("Starting wpa_supplicant")
-
-    # if wpa_supplicant is running, kill it
-    if check_call(["pgrep", "-f", "wpa_supplicant.conf"]) == 0:
-        _check_output(["killall", "wpa_supplicant"])
-
-    return _check_output(
-        ["wpa_supplicant", "-B", "-i", "wlan1", "-c", "/cfg/wpa_supplicant.conf"]
-    )
 
 
 def apup():

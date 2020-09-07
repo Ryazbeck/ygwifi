@@ -3,8 +3,7 @@ auto lo
 iface lo inet loopback
 
 iface wlan1 inet dhcp
-        pre-up killall wpa_supplicant || true
-        pre-up wpa_supplicant -B -i wlan1 -c /cfg/wpa_supplicant.conf
+        pre-up pgrep -f wpa_supplicant.conf || wpa_supplicant -B -i wlan1 -c /cfg/wpa_supplicant.conf
         post-down killall wpa_supplicant || true
         post-down ip addr flush wlan1
         wpa-conf /cfg/wpa_supplicant.conf

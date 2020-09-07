@@ -15,9 +15,10 @@ build-dev:
         - develop
 
 test:
-    script:
-        - pip install pytest
-        - pytest src/test.py
+    script: docker run --build \
+        --name ygwifi-test \
+        --network host \
+        --file Dockerfile.test
     only:
         - develop
 
