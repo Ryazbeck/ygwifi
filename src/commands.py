@@ -67,8 +67,7 @@ def wpa_status():
     logger.debug(whoami.stdout)
     wpa_status = {}
 
-    wpa_status_out_wo_line1 = wpa_status_out.stdout.readlines()[1::]
-    for fld in wpa_status_out_wo_line1:
+    for fld in wpa_status_out.stdout.readlines():
         field = fld.split("=")
         wpa_status[field[0]] = field[1].strip()
 
