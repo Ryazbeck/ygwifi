@@ -63,7 +63,7 @@ def wpa_status():
         logger.info(f"failed to get wpa_cli status: {e}")
         return False
 
-    whoami = subprocess.run(["whoami"], capture_output=True, text=True)
+    whoami = run(["whoami"], capture_output=True, text=True)
     logger.debug(whoami.stdout)
     wpa_status = {}
 
