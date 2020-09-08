@@ -17,18 +17,18 @@ build-dev:
 test:
     script:
         - docker build . -t ryazbeck/ygwifi:test -f Dockerfile.test
-        - docker run \
-          --network=host \
-          --env-file /etc/gitlab-runner/ygwifi-test.env \
-          --user "$(id -u):$(id -g)" \
+        - docker run
+          --network=host
+          --env-file /etc/gitlab-runner/ygwifi-test.env
+          --user "$(id -u):$(id -g)"
           ryazbeck/ygwifi:test
     only:
         - develop
 
 build-prod:
-    script: docker-compose build \
-        --build-arg FLASK_ENV=production \
-        --build-arg LOG_LEVEL=WARNING \
+    script: docker-compose build
+        --build-arg FLASK_ENV=production
+        --build-arg LOG_LEVEL=WARNING
         --build-arg TAG=prod
     only:
         - master
