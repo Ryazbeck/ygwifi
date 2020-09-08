@@ -177,6 +177,25 @@ def apdown():
 
 def wlanup():
     logger.debug("Enabling wlan1")
+
+    try:
+        check_call(["grep", "ssid", "/cfg/wpa_supplicant.conf"])
+    except Exception:
+        logger.info("Cannot enable wlan1, wpa_supplicant.conf is not configured")
+
+    if wpa_status()["wpa_state"] == "4WAY_HANDSHAKE":
+        logger.info("Cannot enable wlan1: wifi authentication failure")
+        return False
+
+    if wpa_status()["wpa_state"] != "COMPLETED":
+        logger.info("Wifi is not authenticated, attempting")
+        try:
+            check_call(["wpa_cli", "reconfigure"])
+        except Exception:
+            logger.debug("wpa_cli reconfigure timed out. checking wpa_state")
+            if wpa_status()["wpa_state"] != "COMPLETED":
+                return False
+
     return _check_output(["ifup", "wlan1"])
 
 
