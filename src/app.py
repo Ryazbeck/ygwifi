@@ -1,5 +1,5 @@
 from flask import Flask, request, Response, jsonify, make_response, abort
-import logging, os, sys, json_logging
+import logging, os, sys, json_logging, json
 import commands
 
 log_levels = {
@@ -122,7 +122,7 @@ def connect():
     Turns up wlan1
     """
 
-    req_json = request.data.decode("utf-8")
+    req_json = json.loads(request.data.decode("utf-8"))
 
     if not req_json:
         return make_response(jsonify({"response": "wifi ssid and key required"}), 500)
