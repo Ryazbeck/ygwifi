@@ -118,12 +118,18 @@ def update_wpa_conf(ssid=None, key=None):
     logger.debug("Updating wpa_supplicant.conf")
 
     # hash the key
-    wpa_passphrase = Popen(
-        ["wpa_passphrase", f"{ssid}", f"{key}"], universal_newlines=True, stdout=PIPE,
-    ).stdout.readlines()
+    try:
+        wpa_passphrase = Popen(
+            ["wpa_passphrase", f"{ssid}", f"{key}"],
+            universal_newlines=True,
+            stdout=PIPE,
+        )
+    except Exception as e:
+        logger.info(e)
+        return False
 
     # get hash from output
-    for line in wpa_passphrase:
+    for line in wpa_passphrase.stdout.readlines():
         if "psk" in line and "#" not in line:
             passphrase = line.strip().replace("psk=", "")
             break
@@ -148,7 +154,7 @@ def update_wpa_conf(ssid=None, key=None):
         wpa_supplicant = open(wpa_supplicant_path, "w")
     except Exception as e:
         logger.info(e)
-        return e
+        return False
 
     try:
         logger.debug(f"writing {wpa_supplicant_path}")
@@ -156,7 +162,7 @@ def update_wpa_conf(ssid=None, key=None):
         return True
     except Exception as e:
         logger.info(e)
-        return e
+        return False
 
 
 def apup():

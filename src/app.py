@@ -122,11 +122,14 @@ def connect():
     Turns up wlan1
     """
 
-    if not request.get_json():
+    print(request.data.decode("utf-8"))
+    req_json = request.get_json()
+
+    if not req_json:
         return make_response(jsonify({"response": "wifi ssid and key required"}), 500)
 
-    ssid = request.get_json()["ssid"]
-    key = request.get_json()["key"]
+    ssid = req_json["ssid"]
+    key = req_json["key"]
 
     if ssid and key:
         logger.debug(f"SSID:{ssid} selected")
