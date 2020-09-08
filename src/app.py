@@ -123,7 +123,7 @@ def connect():
     """
 
     if not request.json:
-        abort(400)
+        return make_response(jsonify({"response": "wifi ssid and key required"}), 500)
 
     ssid = request.json["ssid"]
     key = request.json["key"]
