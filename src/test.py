@@ -33,7 +33,7 @@ def test_wlan():
     connect = requests.get(
         "http://localhost:5000/connect", params={"ssid": WIFI_SSID, "key": WIFI_KEY}
     )
-    assert json.loads(connect.text)["response"] == "Success"
+    assert json.loads(connect.text)["response"] == "Connected"
 
     wpa_status_up = requests.get("http://localhost:5000/wpastatus")
     assert json.loads(wpa_status_up.text)["response"]["wpa_state"] == "COMPLETED"
