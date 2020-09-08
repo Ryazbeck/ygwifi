@@ -17,7 +17,7 @@ build-dev:
 test:
     script:
         - docker build . -t ryazbeck/ygwifi:test -f Dockerfile.test
-        - docker run --network=host ryazbeck/ygwifi:test
+        - docker run --network=host ryazbeck/ygwifi:test --env-file=/etc/gitlab-runner/ygwifi-test.env
     only:
         - develop
 
