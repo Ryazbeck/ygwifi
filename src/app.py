@@ -122,8 +122,7 @@ def connect():
     Turns up wlan1
     """
 
-    print(request.data.decode("utf-8"))
-    req_json = request.get_json()
+    req_json = request.data.decode("utf-8")
 
     if not req_json:
         return make_response(jsonify({"response": "wifi ssid and key required"}), 500)
