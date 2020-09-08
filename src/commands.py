@@ -15,6 +15,9 @@ def _check_output(command: List[str]):
     except CalledProcessError as e:
         logger.warning(e.output)
         return False
+    except Exception as e:
+        logger.warning(e)
+        return False
     else:
         return True
 

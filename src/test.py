@@ -30,7 +30,7 @@ def test_wlan():
     scan = requests.get("http://localhost:5000/scan")
     assert isinstance(json.loads(scan.text)["response"], list)
 
-    connect = requests.get(
+    connect = requests.post(
         "http://localhost:5000/connect", params={"ssid": WIFI_SSID, "key": WIFI_KEY}
     )
     assert json.loads(connect.text)["response"] == "Connected"
