@@ -1,4 +1,12 @@
-from subprocess import check_call, check_output, CalledProcessError, Popen, PIPE, STDOUT
+from subprocess import (
+    run,
+    check_call,
+    check_output,
+    CalledProcessError,
+    Popen,
+    PIPE,
+    STDOUT,
+)
 from typing import List
 import logging
 
@@ -49,12 +57,14 @@ def wpa_status():
 
     try:
         wpa_status_out = Popen(
-            ["wpa_cli", "status"], stdout=PIPE, universal_newlines=True
+            ["wpa_cli", "-i", "wlan1", "status"], stdout=PIPE, universal_newlines=True
         )
     except Exception as e:
         logger.info(f"failed to get wpa_cli status: {e}")
         return False
 
+    whoami = subprocess.run(["whoami"], capture_output=True, text=True)
+    logger.debug(whoami.stdout)
     wpa_status = {}
 
     for fld in wpa_status_out.stdout.readlines()[1::]:
