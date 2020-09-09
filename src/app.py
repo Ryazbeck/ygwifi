@@ -12,7 +12,7 @@ log_levels = {
 
 LOG_LEVEL = log_levels[os.getenv("LOG_LEVEL", "INFO")]
 
-app = Flask(__name__)
+app = Flask("ygwifi")
 
 json_logging.init_flask(enable_json=True)
 json_logging.init_request_instrument(app)

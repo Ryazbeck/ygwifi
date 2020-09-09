@@ -10,7 +10,7 @@ from subprocess import (
 from typing import List
 import logging
 
-logger = logging.getLogger()
+logger = logging.getLogger("ygwifi")
 
 
 def _check_output(command: List[str]):
@@ -63,8 +63,6 @@ def wpa_status():
         logger.info(f"failed to get wpa_cli status: {e}")
         return False
 
-    whoami = run(["whoami"], capture_output=True, text=True)
-    logger.debug(whoami.stdout)
     wpa_status = {}
 
     for fld in wpa_status_out.stdout.readlines():
@@ -73,7 +71,7 @@ def wpa_status():
 
     logger.debug(f"wpa_cli status: {wpa_status}")
 
-    return wpa_status
+    return
 
 
 def scan_for_ssids():
