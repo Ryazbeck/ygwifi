@@ -71,7 +71,7 @@ def wpa_status():
 
     logger.debug(f"wpa_cli status: {wpa_status}")
 
-    return
+    return wpa_status
 
 
 def scan_for_ssids():
