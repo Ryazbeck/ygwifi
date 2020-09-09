@@ -58,7 +58,10 @@ def wpa_status():
 
     try:
         wpa_status_out = Popen(
-            ["wpa_cli", "-i", "wlan1", "status"], stdout=PIPE, universal_newlines=True,
+            ["iw", "dev", "wlan1", "link"],
+            stdout=PIPE,
+            universal_newlines=True,
+            # ["wpa_cli", "-i", "wlan1", "status"], stdout=PIPE, universal_newlines=True,
         )
         logger.debug(f"wpa_status_out: {wpa_status_out}")
     except Exception as e:
@@ -68,7 +71,14 @@ def wpa_status():
     wpa_status = {}
 
     for fld in wpa_status_out.stdout.readlines():
-        field = fld.split("=")
+        if "Not connected" in fld:
+            wpa_status["wpa_state"] = "DISCONNECTED"
+            break
+        elif r"^Connected" in fld:
+            wpa_status["wpa_state"] = "COMPLETED"
+            continue
+
+        field = fld.split(":")
         wpa_status[field[0]] = field[1].strip()
 
     logger.debug(f"wpa_cli status: {wpa_status}")
