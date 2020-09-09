@@ -9,6 +9,7 @@ from subprocess import (
 )
 from typing import List
 import logging
+from time import sleep
 
 logger = logging.getLogger("ygwifi")
 
@@ -198,8 +199,9 @@ def wlanup():
             check_call(["wpa_cli", "reconfigure"])
         except Exception:
             logger.debug("wpa_cli reconfigure timed out. checking wpa_state")
-            if wpa_status()["wpa_state"] != "COMPLETED":
-                return False
+
+    if wpa_status()["wpa_state"] != "COMPLETED":
+        return False
 
     return _check_output(["ifup", "wlan1"])
 
