@@ -84,8 +84,9 @@ def wpastatus():
     """
 
     wpa_status_out = commands.wpa_status()
+    logger.debug(f"wpa_status: {wpa_status_out}")
 
-    if wpa_status_out:
+    if isinstance(wpa_status_out, dict):
         return jsonify({"response": wpa_status_out})
     else:
         return make_response(jsonify({"response": "Failed to get wpa_status"}), 500)
