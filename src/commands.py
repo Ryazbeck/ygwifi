@@ -39,11 +39,14 @@ def start_wpa_supplicant():
 
     logger.debug("Starting wpa_supplicant")
 
-    _check_output(["killall", "wpa_supplicant"])
-
-    return _check_output(
-        ["wpa_supplicant", "-B", "-i", "wlan1", "-c", "/cfg/wpa_supplicant.conf"]
-    )
+    try:
+        check_call(["pgrep", "-f", "wpa_supplicant.conf"])
+    except:
+        return _check_output(
+            ["wpa_supplicant", "-B", "-i", "wlan1", "-c", "/cfg/wpa_supplicant.conf"]
+        )
+    else:
+        return True
 
 
 def wpa_status():
@@ -58,10 +61,7 @@ def wpa_status():
 
     try:
         wpa_status_out = Popen(
-            ["iw", "dev", "wlan1", "link"],
-            stdout=PIPE,
-            universal_newlines=True,
-            # ["wpa_cli", "-i", "wlan1", "status"], stdout=PIPE, universal_newlines=True,
+            ["wpa_cli", "-i", "wlan1", "status"], stdout=PIPE, universal_newlines=True,
         )
         logger.debug(f"wpa_status_out: {wpa_status_out}")
     except Exception as e:
@@ -71,14 +71,7 @@ def wpa_status():
     wpa_status = {}
 
     for fld in wpa_status_out.stdout.readlines():
-        if "Not connected" in fld:
-            wpa_status["wpa_state"] = "DISCONNECTED"
-            break
-        elif r"^Connected" in fld:
-            wpa_status["wpa_state"] = "COMPLETED"
-            continue
-
-        field = fld.split(":")
+        field = fld.split("=")
         wpa_status[field[0]] = field[1].strip()
 
     logger.debug(f"wpa_cli status: {wpa_status}")
