@@ -57,10 +57,7 @@ def wpa_status():
 
     try:
         wpa_status_out = Popen(
-            ["wpa_cli", "-i", "wlan1", "status"],
-            stdout=PIPE,
-            universal_newlines=True,
-            shell=True,
+            ["wpa_cli", "-i", "wlan1", "status"], stdout=PIPE, universal_newlines=True,
         )
     except Exception as e:
         logger.info(f"failed to get wpa_cli status: {e}")

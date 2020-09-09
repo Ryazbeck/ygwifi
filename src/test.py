@@ -25,6 +25,7 @@ def test_wlan():
 
     # enable wpa and confirm scan workls
     wpa_status_down = requests.get("http://localhost:5000/wpastatus")
+    print(wpa_status_down.text)
     assert json.loads(wpa_status_down.text)["response"]["wpa_state"] == "DISCONNECTED"
 
     scan = requests.get("http://localhost:5000/scan")
