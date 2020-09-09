@@ -57,10 +57,7 @@ def wpa_status():
 
     try:
         wpa_status_out = Popen(
-            ["wpa_cli", "-i", "wlan1", "status"],
-            stdout=PIPE,
-            # universal_newlines=True,
-            # shell=True,
+            ["wpa_cli", "-i", "wlan1", "status"], stdout=PIPE, universal_newlines=True,
         )
         logger.debug(f"wpa_status_out: {wpa_status_out}")
     except Exception as e:
@@ -194,10 +191,6 @@ def wlanup():
         check_call(["grep", "ssid", "/cfg/wpa_supplicant.conf"])
     except Exception:
         logger.info("Cannot enable wlan1, wpa_supplicant.conf is not configured")
-
-    if wpa_status()["wpa_state"] == "4WAY_HANDSHAKE":
-        logger.info("Cannot enable wlan1: wifi authentication failure")
-        return False
 
     if wpa_status()["wpa_state"] != "COMPLETED":
         logger.info("Wifi is not authenticated, attempting")
