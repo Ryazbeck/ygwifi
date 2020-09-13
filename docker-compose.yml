@@ -22,5 +22,5 @@ services:
         environment:
             FLASK_APP: "app.py"
             FLASK_ENV: ${FLASK_ENV:-development}
-            TESTING: ${LOG_LEVEL:-True}
+            TESTING: ${TESTING:-True}
         restart: ${RESTART_POLICY:-always}
