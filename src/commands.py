@@ -11,6 +11,15 @@ from typing import List
 import logging
 from time import sleep
 
+
+wpa_supplicant_path = "/cfg/wpa_supplicant.conf"
+wpa_supplicant_base = f"""
+    country=US
+    ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
+    update_config=1
+    p2p_disabled=1
+    """
+
 logger = logging.getLogger("ygwifi")
 
 
@@ -149,18 +158,13 @@ def update_wpa_conf(ssid=None, key=None):
 
     # this goes in the conf file so we can reuse it after boot
     wpa_supplicant_conf = f"""
-        country=US
-        ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
-        update_config=1
-        p2p_disabled=1
+        {wpa_supplicant_base}
 
         network={{
             ssid="{ssid}"
             psk={passphrase}
         }}
         """
-
-    wpa_supplicant_path = "/cfg/wpa_supplicant.conf"
 
     try:
         logger.debug(f"opening {wpa_supplicant_path}")
@@ -176,6 +180,33 @@ def update_wpa_conf(ssid=None, key=None):
     except Exception as e:
         logger.info(e)
         return False
+
+
+def wpa_default(ssid=None, key=None):
+    """ sets wpa_supplicant.conf to the base (no creds) """
+
+    logger.debug("Setting wpa_supplicant.conf to default")
+
+    try:
+        logger.debug(f"opening {wpa_supplicant_path}")
+        wpa_supplicant = open(wpa_supplicant_path, "w")
+    except Exception as e:
+        logger.info(e)
+        return False
+
+    try:
+        logger.debug(f"writing {wpa_supplicant_path}")
+        wpa_supplicant.write(wpa_supplicant_base)
+    except Exception as e:
+        logger.info(e)
+        return False
+
+    try:
+        check_call(["wpa_cli", "reconfigure"])
+    except Exception:
+        logger.debug("wpa_cli reconfigure timed out.")
+    else:
+        return True
 
 
 def apup():

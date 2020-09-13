@@ -39,35 +39,8 @@ def wpastatus():
     wpa_status contains wpa_state so we can see if wpa auth'd successfully
     front end can poll this endpoint and provide feedback (ie auth fail)
 
-    wpa_status = { 
-        'bssid': "a8:9a:93:a4:00:e7"
-        'freq': "5180"
-        'ssid': "wifiname"
-        'id': "0"
-        'mode': "station"
-        'wifi_generation': "5"
-        'pairwise_cipher': "CCMP"
-        'group_cipher': "CCMP"
-        'key_mgmt': "WPA2-PSK"
-        'wpa_state': "COMPLETED"
-        'ip_address': "192.168.1.45"
-        'address': "1c:bf:ce:36:00:e0"
-        'uuid': "bf26e924-aeed-59ea-ad0f-6c12b316062d"
-        'ieee80211ac': "1"
-    }
-
-    possible wpa_states:
-        DISCONNECTED
-        INACTIVE
-        INTERFACE_DISABLED
-        SCANNING
-        AUTHENTICATING
-        ASSOCIATING
-        ASSOCIATED
-        4WAY_HANDSHAKE (auth failure)
-        GROUP_HANDSHAKE
-        COMPLETED
-        UNKNOWN
+    Returns:
+        response: {wpa_status}
     """
 
     wpa_status_out = commands.wpa_status()
@@ -81,10 +54,12 @@ def wpastatus():
 
 @app.route("/scan")
 def scan():
-    """
-    Enables wlan1
+    """Enables wlan1
     Scans for ssids
     Returns results as array of strings
+
+    Returns:
+        response: [SSIDs]
     """
 
     if not commands.start_wpa_supplicant():
@@ -104,10 +79,12 @@ def scan():
 
 @app.route("/connect", methods=["POST"])
 def connect():
-    """
-    Takes ssid and key
+    """Takes ssid and key
     Updates wpa_supplicant.conf
     Turns up wlan1
+
+    Returns:
+        response: success or failure
     """
 
     req_json = json.loads(request.data.decode("utf-8"))
@@ -146,11 +123,30 @@ def connect():
     return make_response(jsonify({"response": response}), 500)
 
 
+@app.route("/wpadefault")
+def wpadefault():
+    """sets wpa_supplicant.conf to default
+
+    Returns:
+        response: success or failure
+    """
+
+    wpa_default = commands.wpa_default()
+    if wpa_default:
+        return jsonify({"response": "wpa_supplicant.conf set to default"})
+    else:
+        return make_response(
+            jsonify({"response": "failed to set wpa_supplicant.conf to default"}), 500
+        )
+
+
 @app.route("/apup")
 def apup():
-    """
-    Creates ap0 with 192.168.100.1
+    """Creates ap0 with 192.168.100.1
     Starts hostapd and dnsmasq 
+
+    Returns:
+        response: success or failure
     """
 
     apup_out = commands.apup()
@@ -162,10 +158,12 @@ def apup():
 
 @app.route("/apdown")
 def apdown():
-    """
-    Deletes ap0
+    """Deletes ap0
     Kills hostapd and dnsmasq
     Flushes ip
+
+    Returns:
+        response: success or failure
     """
 
     apdown_out = commands.apdown()
@@ -177,7 +175,11 @@ def apdown():
 
 @app.route("/wlanup")
 def wlanup():
-    """Turns up wlan and returns a response"""
+    """Turns up wlan and returns a response
+    
+    Returns:
+        response: success or failure
+    """
 
     wlanup_out = commands.wlanup()
 
@@ -189,7 +191,11 @@ def wlanup():
 
 @app.route("/wlandown")
 def wlandown():
-    """Disables wlan1"""
+    """Disables wlan1
+    
+    Returns:
+        response: success or failure
+    """
 
     wlandown_out = commands.wlandown()
 
@@ -201,7 +207,11 @@ def wlandown():
 
 @app.route("/connected")
 def connected():
-    """Ping test"""
+    """Ping test
+    
+    Returns:
+        response: success or failure
+    """
 
     if commands.connected():
         return jsonify({"response": "Success"})

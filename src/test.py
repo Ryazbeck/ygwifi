@@ -12,16 +12,16 @@ WIFI_KEY = os.getenv("WIFI_KEY", None)
 
 def test_ap():
     apup = requests.get("http://localhost:5000/apup")
-    assert json.loads(apup.text)["response"] == "ap0 enabled"
+    assert connected.status_code == 200
 
     apdown = requests.get("http://localhost:5000/apdown")
-    assert json.loads(apdown.text)["response"] == "ap0 disabled"
+    assert connected.status_code == 200
 
 
 def test_wlan():
     # connected should fail
     connected = requests.get("http://localhost:5000/connected")
-    assert json.loads(connected.text)["response"] == "Failure"
+    assert connected.status_code == 500
 
     # enable wpa and confirm scan works
     wpa_status_down = requests.get("http://localhost:5000/wpastatus")
@@ -38,7 +38,7 @@ def test_wlan():
     connect = requests.post(
         "http://localhost:5000/connect", json={"ssid": WIFI_SSID, "key": WIFI_KEY}
     )
-    assert json.loads(connect.text)["response"] == "Connected"
+    assert connected.status_code == 200
 
     # wpa_state should now be COMPLETED
     wpa_status_up = requests.get("http://localhost:5000/wpastatus")
@@ -46,4 +46,16 @@ def test_wlan():
 
     # station should be connected
     connected = requests.get("http://localhost:5000/connected")
-    assert json.loads(connected.text)["response"] == "Success"
+    assert connected.status_code == 200
+
+    # set wpa_supplicant.conf to default
+    connected = requests.get("http://localhost:5000/wpadefault")
+    assert connected.status_code == 200
+
+    # wpa_state should no longer be COMPLETED
+    wpa_status_up = requests.get("http://localhost:5000/wpastatus")
+    assert json.loads(wpa_status_up.text)["response"]["wpa_state"] != "COMPLETED"
+
+    # station should not be connected
+    connected = requests.get("http://localhost:5000/connected")
+    assert connected.status_code != 500
