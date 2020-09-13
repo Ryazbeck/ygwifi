@@ -17,16 +17,19 @@ build-dev:
 
 test:
     script:
+        - . /home/gitlab-runner/ygwifi-test.sh # set env vars
         - docker build . -t ryazbeck/ygwifi:test -f Dockerfile.test
         - docker run
           --network=host
-          --env-file /home/gitlab-runner/ygwifi-test.env
+          --env WIFI_SSID=${WIFI_SSID}
+          --env WIFI_KEY=${WIFI_KEY}
           ryazbeck/ygwifi:test
     tags: [dev]
     only: [develop]
 
 push-dev:
     script:
+        - . /home/gitlab-runner/ygwifi-test.sh # set env vars
         - docker login --username ryazbeck --password ${DOCKER_PW}
         - docker push ryazbeck/ygwifi:dev
     tags: [dev]
@@ -43,6 +46,7 @@ build-prod:
 
 push-prod:
     script:
+        - . /home/gitlab-runner/ygwifi-test.sh # set env vars
         - docker login --username ryazbeck --password ${DOCKER_PW}
         - docker push ryazbeck/ygwifi:latest
     tags: [dev]
