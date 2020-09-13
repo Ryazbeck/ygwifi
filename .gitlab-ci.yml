@@ -16,6 +16,7 @@ build-dev:
     only: [develop]
 
 test:
+    when: on_success
     script:
         - . /home/gitlab-runner/ygwifi-test.sh # set env vars
         - docker build . -t ryazbeck/ygwifi:test -f Dockerfile.test
@@ -28,6 +29,7 @@ test:
     only: [develop]
 
 push-dev:
+    when: on_success
     script:
         - . /home/gitlab-runner/ygwifi-test.sh # set env vars
         - docker login --username ryazbeck --password ${DOCKER_PW}
@@ -45,6 +47,7 @@ build-prod:
     only: [master]
 
 push-prod:
+    when: on_success
     script:
         - . /home/gitlab-runner/ygwifi-test.sh # set env vars
         - docker login --username ryazbeck --password ${DOCKER_PW}
@@ -53,6 +56,7 @@ push-prod:
     only: [master]
 
 deploy:
+    when: on_success
     script:
         - docker pull ryazbeck/ygwifi:latest
         - docker run ryazbeck/ygwifi:latest
