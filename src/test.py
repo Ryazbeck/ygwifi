@@ -47,4 +47,3 @@ def test_wlan():
     # station should be connected
     connected = requests.get("http://localhost:5000/connected")
     assert json.loads(connected.text)["response"] == "Success"
-
