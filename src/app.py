@@ -222,10 +222,10 @@ def exit_ygwifi():
     return True
 
 
+atexit.register(exit_ygwifi)
+signal.signal(signal.SIGINT, exit_ygwifi)
+
+app, logger = create_app()
+
 if __name__ == "__main__":
-    atexit.register(exit_ygwifi)
-    signal.signal(signal.SIGINT, exit_ygwifi)
-
-    app, logger = create_app()
-
     app.run()

@@ -4,6 +4,7 @@ variables:
 stages:
     - build-dev
     - test
+    - build-push
     - build-prod
     - push
     - deploy
