@@ -13,7 +13,7 @@ from time import sleep
 
 
 wpa_supplicant_path = "/cfg/wpa_supplicant.conf"
-wpa_supplicant_base = f"""
+wpa_supplicant_base = """
     country=US
     ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
     update_config=1
@@ -42,8 +42,7 @@ def _check_output(command: List[str]):
 
 def start_wpa_supplicant():
     """
-    Starting this service is already handled in interfaces for ifup and ifdown
-    But scan still needs to be able to use wpa_supplicant for finding SSIDs
+    start wpa_supplicant so we can scan for SSIDs
     """
 
     logger.debug("Starting wpa_supplicant")
@@ -176,6 +175,7 @@ def update_wpa_conf(ssid=None, key=None):
     try:
         logger.debug(f"writing {wpa_supplicant_path}")
         wpa_supplicant.write(wpa_supplicant_conf)
+        wpa_supplicant.close()
         return True
     except Exception as e:
         logger.info(e)
@@ -197,6 +197,7 @@ def wpa_default(ssid=None, key=None):
     try:
         logger.debug(f"writing {wpa_supplicant_path}")
         wpa_supplicant.write(wpa_supplicant_base)
+        wpa_supplicant.close()
     except Exception as e:
         logger.info(e)
         return False
