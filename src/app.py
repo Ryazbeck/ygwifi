@@ -1,5 +1,5 @@
 from flask import Flask, request, Response, jsonify, make_response, abort
-import logging, os, sys, json_logging, json, commands, atexit, signal
+import logging, os, sys, json, commands, atexit, signal
 
 log_levels = {
     "DEBUG": logging.DEBUG,
@@ -12,9 +12,6 @@ log_levels = {
 app = Flask("ygwifi")
 
 LOG_LEVEL = log_levels[os.getenv("LOG_LEVEL", "INFO")]
-
-# json_logging.init_flask(enable_json=True)
-# json_logging.init_request_instrument(app)
 
 logger = logging.getLogger()
 logger.setLevel(LOG_LEVEL)
@@ -211,9 +208,6 @@ def connected():
     else:
         return make_response(jsonify({"response": "Failure"}), 500)
 
-
-atexit.register(commands.apdown)
-atexit.register(commands.wlandown)
 
 if __name__ == "__main__":
     app.run()
