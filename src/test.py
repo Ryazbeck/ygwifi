@@ -58,4 +58,4 @@ def test_wlan():
 
     # station should not be connected
     connected = requests.get("http://localhost:5000/connected")
-    assert connected.status_code != 500
+    assert connected.status_code == 500

@@ -11,7 +11,7 @@ log_levels = {
 LOG_LEVEL = log_levels[os.getenv("LOG_LEVEL", "INFO")]
 
 app = Flask("ygwifi")
-logger = app.logger()
+logger = app.logger
 
 handler = logging.StreamHandler(sys.stdout)
 handler.setFormatter(
