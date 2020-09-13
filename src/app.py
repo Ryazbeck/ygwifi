@@ -9,20 +9,16 @@ log_levels = {
     "CRITICAL": logging.CRITICAL,
 }
 
+app = Flask("ygwifi")
 
-def create_app():
-    app = Flask("ygwifi")
+LOG_LEVEL = log_levels[os.getenv("LOG_LEVEL", "INFO")]
 
-    LOG_LEVEL = log_levels[os.getenv("LOG_LEVEL", "INFO")]
+# json_logging.init_flask(enable_json=True)
+# json_logging.init_request_instrument(app)
 
-    # json_logging.init_flask(enable_json=True)
-    # json_logging.init_request_instrument(app)
-
-    logger = logging.getLogger()
-    logger.setLevel(LOG_LEVEL)
-    logger.addHandler(logging.StreamHandler(sys.stdout))
-
-    return app, logger
+logger = logging.getLogger()
+logger.setLevel(LOG_LEVEL)
+logger.addHandler(logging.StreamHandler(sys.stdout))
 
 
 # endpoints
@@ -216,16 +212,8 @@ def connected():
         return make_response(jsonify({"response": "Failure"}), 500)
 
 
-def exit_ygwifi():
-    commands.apdown()
-    commands.wlandown()
-    return True
-
-
-atexit.register(exit_ygwifi)
-signal.signal(signal.SIGINT, exit_ygwifi)
-
-app, logger = create_app()
+atexit.register(commands.apdown)
+atexit.register(commands.wlandown)
 
 if __name__ == "__main__":
     app.run()
