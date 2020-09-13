@@ -1,5 +1,5 @@
 variables:
-    GIT_DEPTH: 5
+    GIT_DEPTH: 3
 
 stages:
     - build-dev
@@ -11,8 +11,8 @@ stages:
 build-dev:
     script:
         - docker-compose up --build -d
-    only:
-        - develop
+    tags: [dev]
+    only: [develop]
 
 test:
     script:
@@ -21,18 +21,26 @@ test:
           --network=host
           --env-file /home/gitlab-runner/ygwifi-test.env
           ryazbeck/ygwifi:test
-    only:
-        - develop
+    tags: [dev]
+    only: [develop]
 
 build-prod:
     script: docker-compose build
         --build-arg FLASK_ENV=production
         --build-arg LOG_LEVEL=WARNING
+        --build-arg TESTING=False
         --build-arg TAG=prod
-    only:
-        - master
+    tags: [dev]
+    only: [master]
 
 push:
     script: docker push ryazbeck/ygwifi:prod
-    only:
-        - master
+    tags: [dev]
+    only: [master]
+
+deploy:
+    script:
+        - docker pull ryazbeck/ygwifi:prod
+        - docker run ryazbeck/ygwifi:prod
+    tags: [prod]
+    only: [master]

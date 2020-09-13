@@ -1,6 +1,5 @@
 from flask import Flask, request, Response, jsonify, make_response, abort
-import logging, os, sys, json_logging, json
-import commands
+import logging, os, sys, json_logging, json, commands, atexit, signal
 
 log_levels = {
     "DEBUG": logging.DEBUG,
@@ -10,25 +9,23 @@ log_levels = {
     "CRITICAL": logging.CRITICAL,
 }
 
-LOG_LEVEL = log_levels[os.getenv("LOG_LEVEL", "INFO")]
 
-app = Flask("ygwifi")
+app, logger = create_app()
 
-json_logging.init_flask(enable_json=True)
-json_logging.init_request_instrument(app)
 
-logger = logging.getLogger()
-logger.setLevel(LOG_LEVEL)
-logger.addHandler(logging.StreamHandler(sys.stdout))
-# handler = logging.handlers.RotatingFileHandler(
-# filename="/var/log/ygwifi.log",
-#     mode="a",
-#     maxBytes=5 * 1024 * 1024,
-#     backupCount=2,
-#     encoding=None,
-#     delay=0,
-# )
-# logger.addHandler(handler)
+def create_app():
+    app = Flask("ygwifi")
+
+    LOG_LEVEL = log_levels[os.getenv("LOG_LEVEL", "INFO")]
+
+    # json_logging.init_flask(enable_json=True)
+    # json_logging.init_request_instrument(app)
+
+    logger = logging.getLogger()
+    logger.setLevel(LOG_LEVEL)
+    logger.addHandler(logging.StreamHandler(sys.stdout))
+
+    return app, logger
 
 
 # endpoints
@@ -221,6 +218,15 @@ def connected():
     else:
         return make_response(jsonify({"response": "Failure"}), 500)
 
+
+def exit_ygwifi():
+    commands.apdown()
+    commands.wlandown()
+    return True
+
+
+atexit.register(exit_ygwifi)
+signal.signal(signal.SIGINT, exit_ygwifi)
 
 if __name__ == "__main__":
     app.run()
