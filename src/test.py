@@ -12,10 +12,10 @@ WIFI_KEY = os.getenv("WIFI_KEY", None)
 
 def test_ap():
     apup = requests.get("http://localhost:5000/apup")
-    assert connected.status_code == 200
+    assert apup.status_code == 200
 
     apdown = requests.get("http://localhost:5000/apdown")
-    assert connected.status_code == 200
+    assert apdown.status_code == 200
 
 
 def test_wlan():
@@ -38,7 +38,7 @@ def test_wlan():
     connect = requests.post(
         "http://localhost:5000/connect", json={"ssid": WIFI_SSID, "key": WIFI_KEY}
     )
-    assert connected.status_code == 200
+    assert connect.status_code == 200
 
     # wpa_state should now be COMPLETED
     wpa_status_up = requests.get("http://localhost:5000/wpastatus")
@@ -49,8 +49,8 @@ def test_wlan():
     assert connected.status_code == 200
 
     # set wpa_supplicant.conf to default
-    connected = requests.get("http://localhost:5000/wpadefault")
-    assert connected.status_code == 200
+    wpadefault = requests.get("http://localhost:5000/wpadefault")
+    assert wpadefault.status_code == 200
 
     # wpa_state should no longer be COMPLETED
     wpa_status_up = requests.get("http://localhost:5000/wpastatus")
