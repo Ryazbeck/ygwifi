@@ -226,23 +226,35 @@ def wlanup():
         check_call(["grep", "ssid", "/cfg/wpa_supplicant.conf"])
     except Exception:
         logger.info("Cannot enable wlan1, wpa_supplicant.conf is not configured")
+        return False
 
-    if wpa_status()["wpa_state"] != "COMPLETED":
-        logger.info("Wifi is not authenticated, attempting")
-        try:
-            check_call(["wpa_cli", "reconfigure"])
-        except Exception:
-            logger.debug("wpa_cli reconfigure timed out. checking wpa_state")
+    start_wpa_supplicant()
+
+    attempt = 0
+    while attempt < 2:
+        if wpa_status()["wpa_state"] != "COMPLETED":
+            logger.info("Wifi is not authenticated, attempting")
+            try:
+                check_call(["wpa_cli", "reconfigure"])
+            except Exception:
+                logger.debug("wpa_cli reconfigure timed out. checking wpa_state")
+        else:
+            logger.debug(
+                "wpa_state is not completed, waiting 3 seconds and checking again"
+            )
+            attempt = attempt + 1
+            sleep(3)
 
     if wpa_status()["wpa_state"] != "COMPLETED":
         return False
 
-    return _check_output(["ifup", "wlan1"])
+    return _check_output(["udhcpc", "-i", "wlan1"])
 
 
 def wlandown():
     logger.debug("Disabling wlan1")
-    return _check_output(["ifdown", "wlan1"])
+    _check_output(["ip", "addr", "flush", "wlan1"])
+    return _check_output(["killall", "wpa_supplicant", "udhcpc"])
 
 
 def connected():

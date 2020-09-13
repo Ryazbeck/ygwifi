@@ -2,13 +2,6 @@ source-directory /etc/network/interfaces.d
 auto lo
 iface lo inet loopback
 
-allow-hotplug wlan1
-iface wlan1 inet dhcp
-        pre-up pgrep -f wpa_supplicant.conf || wpa_supplicant -B -i wlan1 -c /cfg/wpa_supplicant.conf
-        post-down killall wpa_supplicant || true
-        post-down ip addr flush wlan1
-        wpa-conf /cfg/wpa_supplicant.conf
-
 iface ap0 inet static
         pre-up killall dnsmasq hostapd || true
         pre-up iw phy phy0 interface add ap0 type __ap
