@@ -14,13 +14,13 @@ from time import sleep
 
 wpa_supplicant_path = "/cfg/wpa_supplicant.conf"
 wpa_supplicant_base = """
-    country=US
+    country=US 
     ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
     update_config=1
     p2p_disabled=1
     """
 
-logger = logging.getLogger("app")
+logger = logging.getLogger("ygwifi.commands")
 
 
 def _check_output(command: List[str]):
@@ -182,7 +182,7 @@ def update_wpa_conf(ssid=None, key=None):
         return False
 
 
-def wpa_default(ssid=None, key=None):
+def wpa_default():
     """ sets wpa_supplicant.conf to the base (no creds) """
 
     logger.debug("Setting wpa_supplicant.conf to default")

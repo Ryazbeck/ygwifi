@@ -8,14 +8,18 @@ log_levels = {
     "ERROR": logging.ERROR,
     "CRITICAL": logging.CRITICAL,
 }
-
-app = Flask(__name__)
-
 LOG_LEVEL = log_levels[os.getenv("LOG_LEVEL", "INFO")]
 
-logger = logging.getLogger()
+app = Flask("ygwifi")
+logger = app.logger()
+
+handler = logging.StreamHandler(sys.stdout)
+handler.setFormatter(
+    logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+)
+
+logger.addHandler(handler)
 logger.setLevel(LOG_LEVEL)
-logger.addHandler(logging.StreamHandler(sys.stdout))
 
 
 # endpoints
