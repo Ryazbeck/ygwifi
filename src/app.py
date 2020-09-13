@@ -10,9 +10,6 @@ log_levels = {
 }
 
 
-app, logger = create_app()
-
-
 def create_app():
     app = Flask("ygwifi")
 
@@ -225,8 +222,10 @@ def exit_ygwifi():
     return True
 
 
-atexit.register(exit_ygwifi)
-signal.signal(signal.SIGINT, exit_ygwifi)
-
 if __name__ == "__main__":
+    atexit.register(exit_ygwifi)
+    signal.signal(signal.SIGINT, exit_ygwifi)
+
+    app, logger = create_app()
+
     app.run()

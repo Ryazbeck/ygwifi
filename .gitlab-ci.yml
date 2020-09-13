@@ -24,23 +24,29 @@ test:
     tags: [dev]
     only: [develop]
 
+build-push:
+    script:
+        - docker push ryazbeck/ygwifi:dev
+    tags: [dev]
+    only: [develop]
+
 build-prod:
     script: docker-compose build
         --build-arg FLASK_ENV=production
         --build-arg LOG_LEVEL=WARNING
         --build-arg TESTING=False
-        --build-arg TAG=prod
+        --build-arg TAG=latest
     tags: [dev]
     only: [master]
 
 push:
-    script: docker push ryazbeck/ygwifi:prod
+    script: docker push ryazbeck/ygwifi:latest
     tags: [dev]
     only: [master]
 
 deploy:
     script:
-        - docker pull ryazbeck/ygwifi:prod
-        - docker run ryazbeck/ygwifi:prod
+        - docker pull ryazbeck/ygwifi:latest
+        - docker run ryazbeck/ygwifi:latest
     tags: [prod]
     only: [master]
