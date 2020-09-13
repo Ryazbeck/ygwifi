@@ -9,7 +9,7 @@ log_levels = {
     "CRITICAL": logging.CRITICAL,
 }
 
-app = Flask("ygwifi")
+app = Flask(__name__)
 
 LOG_LEVEL = log_levels[os.getenv("LOG_LEVEL", "INFO")]
 

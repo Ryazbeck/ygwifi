@@ -20,7 +20,7 @@ wpa_supplicant_base = f"""
     p2p_disabled=1
     """
 
-logger = logging.getLogger("ygwifi")
+logger = logging.getLogger("app")
 
 
 def _check_output(command: List[str]):
