@@ -27,6 +27,7 @@ test:
 
 push-dev:
     script:
+        - docker login --username ryazbeck --password ${DOCKER_PW}
         - docker push ryazbeck/ygwifi:dev
     tags: [dev]
     only: [develop]
@@ -41,7 +42,9 @@ build-prod:
     only: [master]
 
 push-prod:
-    script: docker push ryazbeck/ygwifi:latest
+    script:
+        - docker login --username ryazbeck --password ${DOCKER_PW}
+        - docker push ryazbeck/ygwifi:latest
     tags: [dev]
     only: [master]
 
