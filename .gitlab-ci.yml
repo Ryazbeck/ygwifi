@@ -4,9 +4,9 @@ variables:
 stages:
     - build-dev
     - test
-    - build-push
+    - push-dev
     - build-prod
-    - push
+    - push-prod
     - deploy
 
 build-dev:
@@ -25,7 +25,7 @@ test:
     tags: [dev]
     only: [develop]
 
-build-push:
+push-dev:
     script:
         - docker push ryazbeck/ygwifi:dev
     tags: [dev]
@@ -40,7 +40,7 @@ build-prod:
     tags: [dev]
     only: [master]
 
-push:
+push-prod:
     script: docker push ryazbeck/ygwifi:latest
     tags: [dev]
     only: [master]
