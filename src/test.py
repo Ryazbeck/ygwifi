@@ -56,6 +56,10 @@ def test_wlan():
     wpa_status_up = requests.get("http://localhost:5000/wpastatus")
     assert json.loads(wpa_status_up.text)["response"]["wpa_state"] != "COMPLETED"
 
+    # turn down wlan1
+    connected = requests.get("http://localhost:5000/wlandown")
+    assert connected.status_code == 200
+
     # station should not be connected
     connected = requests.get("http://localhost:5000/connected")
     assert connected.status_code == 500

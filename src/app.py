@@ -14,27 +14,9 @@ app = Flask("ygwifi")
 logger = app.logger
 
 handler = logging.StreamHandler(sys.stdout)
-handler.setFormatter(
-    logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-)
 
 logger.addHandler(handler)
 logger.setLevel(LOG_LEVEL)
-
-
-# endpoints
-@app.after_request
-def after_request(response):
-    logger.info(
-        "%s %s %s %s %s",
-        request.method,
-        request.path,
-        request.scheme,
-        response.status,
-        response.content_length,
-    )
-
-    return response
 
 
 @app.route("/wpastatus")
