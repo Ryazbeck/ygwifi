@@ -2,21 +2,32 @@ variables:
     GIT_DEPTH: 3
 
 stages:
-    - build-dev
-    - test
-    - push-dev
-    - build-prod
-    - push-prod
-    - deploy
+    - Static Test
+    - Build Development
+    - Test
+    - Build
+    - Push
+    - Deploy
+
+flake8:
+    stage: Static Test
+    script:
+        - flake8 --max-line-length=88 src
+
+pylint:
+    stage: Static Test
+    script:
+        - pylint src
 
 build-dev:
+    stage: Build Development
     script:
         - docker-compose up --build -d
     tags: [dev]
     only: [develop]
 
-test:
-    when: on_success
+pytest:
+    stage: Test
     script:
         - . /home/gitlab-runner/ygwifi-test.sh # set env vars
         - docker build . -t ryazbeck/ygwifi:test -f Dockerfile.test
@@ -28,16 +39,8 @@ test:
     tags: [dev]
     only: [develop]
 
-push-dev:
-    when: on_success
-    script:
-        - . /home/gitlab-runner/ygwifi-test.sh # set env vars
-        - docker login --username ryazbeck --password ${DOCKER_PW}
-        - docker push ryazbeck/ygwifi:dev
-    tags: [dev]
-    only: [develop]
-
-build-prod:
+build:
+    stage: Build
     script: docker-compose build
         --build-arg FLASK_ENV=production
         --build-arg LOG_LEVEL=WARNING
@@ -46,7 +49,8 @@ build-prod:
     tags: [dev]
     only: [master]
 
-push-prod:
+push:
+    stage: Push
     when: on_success
     script:
         - . /home/gitlab-runner/ygwifi-test.sh # set env vars
@@ -56,6 +60,7 @@ push-prod:
     only: [master]
 
 deploy:
+    stage: Deploy
     when: on_success
     script:
         - docker pull ryazbeck/ygwifi:latest

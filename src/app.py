@@ -1,5 +1,12 @@
-from flask import Flask, request, Response, jsonify, make_response, abort
-import logging, os, sys, json, commands, atexit, signal
+"""Flask API for manipulating wifi and ap hotspot"""
+
+import logging
+import os
+import sys
+import json
+from flask import Flask, request, jsonify, make_response
+from flask.logging import create_logger
+import commands
 
 log_levels = {
     "DEBUG": logging.DEBUG,
@@ -11,7 +18,7 @@ log_levels = {
 LOG_LEVEL = log_levels[os.getenv("LOG_LEVEL", "INFO")]
 
 app = Flask("ygwifi")
-logger = app.logger
+logger = create_logger(app)
 
 handler = logging.StreamHandler(sys.stdout)
 
@@ -29,13 +36,13 @@ def wpastatus():
         response: {wpa_status}
     """
 
-    wpa_status_out = commands.wpa_status()
-    logger.debug(f"wpa_status: {wpa_status_out}")
+    wpa_status_out = commands.get_wpa_status()
+    logger.debug("wpa_status: %i", wpa_status_out)
 
     if isinstance(wpa_status_out, dict):
         return jsonify({"response": wpa_status_out})
-    else:
-        return make_response(jsonify({"response": "Failed to get wpa_status"}), 500)
+
+    return make_response(jsonify({"response": "Failed to get wpa_status"}), 500)
 
 
 @app.route("/scan")
@@ -57,10 +64,11 @@ def scan():
 
     if ssids:
         return jsonify({"response": ssids})
-    elif ssids is None:
+
+    if ssids is None:
         return make_response(jsonify({"response": "No SSIDs found"}), 404)
-    else:
-        return make_response(jsonify({"response": "Scan failed"}), 500)
+
+    return make_response(jsonify({"response": "Scan failed"}), 500)
 
 
 @app.route("/connect", methods=["POST"])
@@ -82,17 +90,18 @@ def connect():
     key = req_json["key"]
 
     if ssid and key:
-        logger.debug(f"SSID:{ssid} selected")
+        logger.debug("SSID:%i selected", ssid)
 
         if not commands.update_wpa_conf(ssid, key):
             return make_response(
                 jsonify({"response": "Failed to update wpa_supplicant.conf"}), 500
             )
-        elif not commands.wlanup():
+
+        if not commands.wlanup():
             return make_response(jsonify({"response": "Failed to enable wlan1"}), 500)
-        else:
-            if commands.connected():
-                return jsonify({"response": "Connected"})
+
+        if commands.connected():
+            return jsonify({"response": "Connected"})
 
         response = "Failed to connect"
 
@@ -120,16 +129,16 @@ def wpadefault():
     wpa_default = commands.wpa_default()
     if wpa_default:
         return jsonify({"response": "wpa_supplicant.conf set to default"})
-    else:
-        return make_response(
-            jsonify({"response": "failed to set wpa_supplicant.conf to default"}), 500
-        )
+
+    return make_response(
+        jsonify({"response": "failed to set wpa_supplicant.conf to default"}), 500
+    )
 
 
 @app.route("/apup")
 def apup():
     """Creates ap0 with 192.168.100.1
-    Starts hostapd and dnsmasq 
+    Starts hostapd and dnsmasq
 
     Returns:
         response: success or failure
@@ -138,8 +147,8 @@ def apup():
     apup_out = commands.apup()
     if apup_out:
         return jsonify({"response": "ap0 enabled"})
-    else:
-        return make_response(jsonify({"response": "failed to enable ap0"}), 500)
+
+    return make_response(jsonify({"response": "failed to enable ap0"}), 500)
 
 
 @app.route("/apdown")
@@ -155,14 +164,14 @@ def apdown():
     apdown_out = commands.apdown()
     if apdown_out:
         return jsonify({"response": "ap0 disabled"})
-    else:
-        return make_response(jsonify({"response": "failed to disable ap0"}), 500)
+
+    return make_response(jsonify({"response": "failed to disable ap0"}), 500)
 
 
 @app.route("/wlanup")
 def wlanup():
     """Turns up wlan and returns a response
-    
+
     Returns:
         response: success or failure
     """
@@ -171,14 +180,14 @@ def wlanup():
 
     if wlanup_out:
         return jsonify({"response": "wlan1 enabled"})
-    else:
-        return make_response(jsonify({"response": "Failed to enable wlan1"}), 500)
+
+    return make_response(jsonify({"response": "Failed to enable wlan1"}), 500)
 
 
 @app.route("/wlandown")
 def wlandown():
     """Disables wlan1
-    
+
     Returns:
         response: success or failure
     """
@@ -187,22 +196,22 @@ def wlandown():
 
     if wlandown_out:
         return jsonify({"response": "wlan1 disabled"})
-    else:
-        return make_response(jsonify({"response": "Failed to disable wlan1"}), 500)
+
+    return make_response(jsonify({"response": "Failed to disable wlan1"}), 500)
 
 
 @app.route("/connected")
 def connected():
     """Ping test
-    
+
     Returns:
         response: success or failure
     """
 
     if commands.connected():
         return jsonify({"response": "Success"})
-    else:
-        return make_response(jsonify({"response": "Failure"}), 500)
+
+    return make_response(jsonify({"response": "Failure"}), 500)
 
 
 if __name__ == "__main__":

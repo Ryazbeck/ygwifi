@@ -1,9 +1,11 @@
-import json
-import requests
-import os
-import tempfile
+"""
+This runs outside the app.py in its own container outside of app.py
+to test the flask API while it's running on the test device.
+"""
 
-import pytest
+import json
+import os
+import requests
 
 
 WIFI_SSID = os.getenv("WIFI_SSID", None)
@@ -11,16 +13,25 @@ WIFI_KEY = os.getenv("WIFI_KEY", None)
 
 
 def test_ap_up():
+    """ Verifies ap0 up """
     apup = requests.get("http://localhost:5000/apup")
     assert apup.status_code == 200
 
 
 def test_ap_down():
+    """ Verifies ap0 down """
     apdown = requests.get("http://localhost:5000/apdown")
     assert apdown.status_code == 200
 
 
 def test_wlan_up():
+    """
+    Tests wlan up functionality
+    - Verifies connection is down
+    - Submits ssid and key for connect
+    - Verifies connection established
+    """
+
     # connected should fail
     connected = requests.get("http://localhost:5000/connected")
     assert connected.status_code == 500
@@ -52,6 +63,14 @@ def test_wlan_up():
 
 
 def test_wlan_down():
+    """
+    Tests wlan down functionality
+    - Sets wpa_supplicant.conf to default
+    - Verifies wifi is no longer authenticated
+    - Turns down wlan1
+    - Verifies connection is down
+    """
+
     # set wpa_supplicant.conf to default
     wpadefault = requests.get("http://localhost:5000/wpadefault")
     assert wpadefault.status_code == 200

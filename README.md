@@ -110,5 +110,5 @@ sudo ifdown --force wlan0 wlan1
 Run ygwifi:
 
 ```
-docker run -d --name ygwifi ryazbeck/ygwifi:dev
+docker run -d --name ygwifi ryazbeck/ygwifi:latest
 ```
