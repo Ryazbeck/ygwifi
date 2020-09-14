@@ -13,11 +13,15 @@ flake8:
     stage: Static Test
     script:
         - flake8 --max-line-length=88 src
+    tags: [dev]
+    only: [develop]
 
 pylint:
     stage: Static Test
     script:
         - pylint src
+    tags: [dev]
+    only: [develop]
 
 build-dev:
     stage: Build Development
