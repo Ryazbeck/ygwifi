@@ -2,10 +2,9 @@ variables:
     GIT_DEPTH: 3
 
 stages:
-    - Build Test
-    - Static Test
     - Build Development
-    - Test
+    - Build Test
+    - Run Tests
     - Build
     - Push
     - Deploy
@@ -31,13 +30,13 @@ build_test:
     only: [develop]
 
 flake8:
-    stage: Static Tests
+    stage: Run Tests
     script: docker exec -it ygwifi-test flake8
     tags: [dev]
     only: [develop]
 
 pylint:
-    stage: Static Tests
+    stage: Run Tests
     script: docker exec -it ygwifi-test flake8
     tags: [dev]
     only: [develop]
