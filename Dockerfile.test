@@ -2,9 +2,8 @@ FROM arm32v6/python:rc-alpine
 
 WORKDIR /
 
-RUN pip install pytest requests flake8
+RUN pip install requests pytest flake8 pylint
 
-COPY src/test.py /
+COPY src /
 
-RUN flake8 *.py
-RUN pytest test.py
+CMD tail -f /dev/null

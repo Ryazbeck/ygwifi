@@ -1,6 +1,6 @@
 """
-This runs outside the app.py in its own container outside of app.py
-to test the flask API while it's running on the test device.
+This runs outside ygwifi in its own container to test the flask API
+while it's running on the test device.
 """
 
 import json

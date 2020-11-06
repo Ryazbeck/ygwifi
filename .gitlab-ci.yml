@@ -2,6 +2,7 @@ variables:
     GIT_DEPTH: 3
 
 stages:
+    - Build Test
     - Static Test
     - Build Development
     - Test
@@ -9,39 +10,39 @@ stages:
     - Push
     - Deploy
 
-flake8:
-    stage: Static Test
+# develop branch
+
+build-dev:
+    stage: Build Development
+    script: docker-compose up --build -d
+    tags: [dev]
+    only: [develop]
+
+build_test:
+    stage: Build Test
     script:
-        - flake8 --max-line-length=88 src
+        - docker build . -t ryazbeck/ygwifi:test -f Dockerfile.test
+        - . /home/gitlab-runner/ygwifi-test.sh # set env vars
+        - docker run --detach --name ygwifi-test
+          --env WIFI_SSID=${WIFI_SSID}
+          --env WIFI_KEY=${WIFI_KEY}
+          --network=host ryazbeck/ygwifi:test
+    tags: [dev]
+    only: [develop]
+
+flake8:
+    stage: Static Tests
+    script: docker exec -it ygwifi-test flake8
     tags: [dev]
     only: [develop]
 
 pylint:
-    stage: Static Test
-    script:
-        - pylint src
+    stage: Static Tests
+    script: docker exec -it ygwifi-test flake8
     tags: [dev]
     only: [develop]
 
-build-dev:
-    stage: Build Development
-    script:
-        - docker-compose up --build -d
-    tags: [dev]
-    only: [develop]
-
-pytest:
-    stage: Test
-    script:
-        - . /home/gitlab-runner/ygwifi-test.sh # set env vars
-        - docker build . -t ryazbeck/ygwifi:test -f Dockerfile.test
-        - docker run
-          --network=host
-          --env WIFI_SSID=${WIFI_SSID}
-          --env WIFI_KEY=${WIFI_KEY}
-          ryazbeck/ygwifi:test
-    tags: [dev]
-    only: [develop]
+# master branch
 
 build:
     stage: Build
