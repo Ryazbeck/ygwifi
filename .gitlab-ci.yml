@@ -22,6 +22,7 @@ build_test:
     script:
         - docker build . -t ryazbeck/ygwifi:test -f Dockerfile.test
         - . /home/gitlab-runner/ygwifi-test.sh # set env vars
+        - docker rm ygwifi-test --force
         - docker run --detach --name ygwifi-test
           --env WIFI_SSID=${WIFI_SSID}
           --env WIFI_KEY=${WIFI_KEY}
