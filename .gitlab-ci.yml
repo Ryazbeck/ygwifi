@@ -20,6 +20,7 @@ build-dev:
 build_test:
     stage: Build Test
     script:
+        - /usr/local/bin/python -m pip install --upgrade pip
         - docker build . -t ryazbeck/ygwifi:test -f Dockerfile.test
         - . /home/gitlab-runner/ygwifi-test.sh # set env vars
         - docker run --detach --name ygwifi-test
