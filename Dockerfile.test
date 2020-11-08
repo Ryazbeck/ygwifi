@@ -3,7 +3,7 @@ FROM arm32v6/python:rc-alpine
 WORKDIR /
 
 RUN /usr/local/bin/python -m pip install --upgrade pip
-RUN pip install requests pytest flake8 pylint
+RUN pip install requests pytest flake8
 
 COPY src /
 

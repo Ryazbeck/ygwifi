@@ -13,7 +13,7 @@ stages:
 
 build-dev:
     stage: Build Development
-    script: docker-compose up --build -d
+    script: docker-compose up --build -d --build-arg reqs=requirements.test.txt
     tags: [dev]
     only: [develop]
 
@@ -38,7 +38,7 @@ flake8:
 
 pylint:
     stage: Run Tests
-    script: docker exec ygwifi-dev pylint app.py
+    script: docker exec ygwifi pylint app.py
     tags: [dev]
     only: [develop]
 
