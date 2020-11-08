@@ -245,7 +245,7 @@ def wlanup():
     start_wpa_supplicant()
 
     attempt = 0
-    while attempt < 2:
+    while attempt < 3:
         if get_wpa_status()["wpa_state"] != "COMPLETED":
             logger.info("Wifi is not authenticated, attempting")
             try:
@@ -254,12 +254,8 @@ def wlanup():
                 logger.debug(
                     "wpa_cli reconfigure timed out [%i]. checking wpa_state", error
                 )
-        else:
-            logger.debug(
-                "wpa_state is not completed, waiting 3 seconds and checking again"
-            )
-            attempt = attempt + 1
-            sleep(3)
+        attempt += 1
+        sleep(5)
 
     if get_wpa_status()["wpa_state"] != "COMPLETED":
         return False

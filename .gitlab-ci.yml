@@ -32,13 +32,19 @@ build_test:
 
 flake8:
     stage: Run Tests
-    script: docker exec -it ygwifi-test flake8
+    script: docker exec ygwifi-test flake8 app.py
     tags: [dev]
     only: [develop]
 
 pylint:
     stage: Run Tests
-    script: docker exec -it ygwifi-test flake8
+    script: docker exec ygwifi-test pylint app.py
+    tags: [dev]
+    only: [develop]
+
+pytest:
+    stage: Run Tests
+    script: docker exec ygwifi-test pytest test.py
     tags: [dev]
     only: [develop]
 
