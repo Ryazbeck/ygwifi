@@ -13,7 +13,9 @@ stages:
 
 build-dev:
     stage: Build Development
-    script: docker-compose up --build -d --build-arg reqs=requirements.test.txt
+    script:
+        - docker-compose build --build-arg reqs=requirements.test.txt
+        - docker-compose up -d
     tags: [dev]
     only: [develop]
 
