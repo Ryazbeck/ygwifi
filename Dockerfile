@@ -2,6 +2,8 @@ FROM arm32v6/python:rc-alpine
 
 WORKDIR /
 
+ARG reqs=$reqs
+
 RUN apk update
 RUN apk add wireless-tools iw ifupdown wpa_supplicant hostapd dnsmasq
 
