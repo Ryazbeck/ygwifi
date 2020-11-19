@@ -24,6 +24,32 @@ def test_ap_down():
     assert apdown.status_code == 200
 
 
+def test_wlan_down():
+    """
+    Tests wlan down functionality
+    - Sets wpa_supplicant.conf to default
+    - Verifies wifi is no longer authenticated
+    - Turns down wlan1
+    - Verifies connection is down
+    """
+
+    # set wpa_supplicant.conf to default
+    wpadefault = requests.get("http://localhost:5000/wpadefault")
+    assert wpadefault.status_code == 200
+
+    # wpa_state should no longer be COMPLETED
+    wpa_status_up = requests.get("http://localhost:5000/wpastatus")
+    assert json.loads(wpa_status_up.text)["response"]["wpa_state"] != "COMPLETED"
+
+    # turn down wlan1
+    connected = requests.get("http://localhost:5000/wlandown")
+    assert connected.status_code == 200
+
+    # station should not be connected
+    connected = requests.get("http://localhost:5000/connected")
+    assert connected.status_code == 500
+
+
 def test_wlan_up():
     """
     Tests wlan up functionality
@@ -60,29 +86,3 @@ def test_wlan_up():
     # station should be connected
     connected = requests.get("http://localhost:5000/connected")
     assert connected.status_code == 200
-
-
-def test_wlan_down():
-    """
-    Tests wlan down functionality
-    - Sets wpa_supplicant.conf to default
-    - Verifies wifi is no longer authenticated
-    - Turns down wlan1
-    - Verifies connection is down
-    """
-
-    # set wpa_supplicant.conf to default
-    wpadefault = requests.get("http://localhost:5000/wpadefault")
-    assert wpadefault.status_code == 200
-
-    # wpa_state should no longer be COMPLETED
-    wpa_status_up = requests.get("http://localhost:5000/wpastatus")
-    assert json.loads(wpa_status_up.text)["response"]["wpa_state"] != "COMPLETED"
-
-    # turn down wlan1
-    connected = requests.get("http://localhost:5000/wlandown")
-    assert connected.status_code == 200
-
-    # station should not be connected
-    connected = requests.get("http://localhost:5000/connected")
-    assert connected.status_code == 500
