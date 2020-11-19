@@ -51,7 +51,7 @@ pytest:
     tags: [dev]
     only: [develop]
 
-# master branch
+# staging branch
 
 build:
     stage: Build
@@ -59,9 +59,9 @@ build:
         --build-arg FLASK_ENV=production
         --build-arg LOG_LEVEL=WARNING
         --build-arg TESTING=False
-        --build-arg TAG=latest
+        --build-arg TAG=staging
     tags: [dev]
-    only: [master]
+    only: [staging]
 
 push:
     stage: Push
@@ -69,15 +69,15 @@ push:
     script:
         - . /home/gitlab-runner/ygwifi-test.sh # set env vars
         - docker login --username ryazbeck --password ${DOCKER_PW}
-        - docker push ryazbeck/ygwifi:latest
+        - docker push ryazbeck/ygwifi:staging
     tags: [dev]
-    only: [master]
+    only: [staging]
 
 deploy:
     stage: Deploy
     when: on_success
     script:
-        - docker pull ryazbeck/ygwifi:latest
-        - docker run ryazbeck/ygwifi:latest
+        - docker pull ryazbeck/ygwifi:staging
+        - docker run ryazbeck/ygwifi:staging
     tags: [prod]
-    only: [master]
+    only: [staging]
