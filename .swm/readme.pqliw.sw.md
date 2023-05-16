@@ -5,7 +5,7 @@ file_version: 1.1.2
 app_version: 1.8.5
 ---
 
-# ygwifi
+h1. ygwifi
 
 *   Purpose (#Purpose)
 
@@ -21,7 +21,7 @@ app_version: 1.8.5
 
 Controls managed wifi and AP hotspot separately with a simple API.
 
-*   You'll need a wifi dongle (#Why-do-I-need-a-dongle?).
+*   You'll need a wifi dongle (#Why-do-I-need-a-dongle?)...
 
 Quoting [txwifi](https://github.com/txn2/txwifi) sums this project up:
 
