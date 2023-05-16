@@ -15,7 +15,7 @@ WIFI_KEY = os.getenv("WIFI_KEY", None)
 def test_ap_up():
     """ Verifies ap0 up """
     apup = requests.get("http://localhost:5000/apup")
-    assert apup.status_code == 200
+    assert apup.status_code == 202
 
 
 def test_ap_down():
