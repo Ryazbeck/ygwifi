@@ -7,7 +7,7 @@ app_version: 1.8.5
 
 h1. ygwifi
 
-*   \[Purpose\](#Purpose)
+*   [Purpose](docs/pqliw#ZHMbMK)
 
 *   Why do I need a dongle? (#Why-do-I-need-a-dongle?)
 
