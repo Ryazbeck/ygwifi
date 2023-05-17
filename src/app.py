@@ -1,4 +1,4 @@
-"""Flask API for manipulating wifi and ap hotspot"""
+"""Flask API for manipulating wifi and ap hotspot -"""
 
 import logging
 import os
