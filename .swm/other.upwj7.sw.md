@@ -7,7 +7,7 @@ app_version: 1.8.5
 
 # Other
 
-Home (./Home.md)
+[Home](home.766r8.sw.md)
 
 <br/>
 
