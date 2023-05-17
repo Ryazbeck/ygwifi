@@ -7,9 +7,24 @@ app_version: 1.8.5
 
 # Home
 
-[Other](other.upwj7.sw.md)Test
+[Other](other.upwj7.sw.md)
 
 <br/>
+
+<br/>
+
+
+<!-- NOTE-swimm-snippet: the lines below link your snippet to Swimm -->
+### 📄 src/app.py
+```python
+11     log_levels = {
+12         "DEBUG": logging.DEBUG,
+13         "INFO": logging.INFO,
+14         "WARNING": logging.WARNING,
+15         "ERROR": logging.ERROR,
+16         "CRITICAL": logging.CRITICAL,
+17     }
+```
 
 <br/>
 
@@ -19,15 +34,11 @@ app_version: 1.8.5
 
 <br/>
 
-<br/>
-
 ## Section 2
 
 ### Subsection a
 
 #### Subsection 2.a
-
-<br/>
 
 <br/>
 
