@@ -19,7 +19,7 @@ def test_ap_up():
 
 
 def test_ap_down():
-    """ Verifies ap0 down """
+    """ Verifies ap0 down, change """
     apdown = requests.get("http://localhost:5000/apdown")
     assert apdown.status_code == 200
 
