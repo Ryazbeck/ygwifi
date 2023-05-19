@@ -11,8 +11,6 @@ app_version: 1.8.5
 
 <br/>
 
-<br/>
-
 
 <!-- NOTE-swimm-snippet: the lines below link your snippet to Swimm -->
 ### 📄 src/app.py
@@ -28,9 +26,17 @@ app_version: 1.8.5
 
 <br/>
 
+## Section 1
+
 <br/>
 
-## Section 1
+
+<!-- NOTE-swimm-snippet: the lines below link your snippet to Swimm -->
+### 📄 src/app.py
+```python
+29     @app.route("/wpastatus")
+30     def wpastatus():
+```
 
 <br/>
 

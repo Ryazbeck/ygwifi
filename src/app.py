@@ -14,6 +14,7 @@ log_levels = {
     "WARNING": logging.WARNING,
     "ERROR": logging.ERROR,
     "CRITICAL": logging.CRITICAL,
+    "OTHER": logging.INFO
 }
 LOG_LEVEL = log_levels[os.getenv("LOG_LEVEL", "INFO")]
 
