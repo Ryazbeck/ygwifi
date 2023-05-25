@@ -2,7 +2,7 @@
 id: 766r8
 title: Home
 file_version: 1.1.2
-app_version: 1.8.5
+app_version: 1.9.10
 ---
 
 # Home
@@ -21,7 +21,8 @@ app_version: 1.8.5
 14         "WARNING": logging.WARNING,
 15         "ERROR": logging.ERROR,
 16         "CRITICAL": logging.CRITICAL,
-17     }
+17         "OTHER": logging.INFO
+18     }
 ```
 
 <br/>
@@ -34,8 +35,8 @@ app_version: 1.8.5
 <!-- NOTE-swimm-snippet: the lines below link your snippet to Swimm -->
 ### 📄 src/app.py
 ```python
-29     @app.route("/wpastatus")
-30     def wpastatus():
+30     @app.route("/wpastatus")
+31     def wpastatus():
 ```
 
 <br/>
