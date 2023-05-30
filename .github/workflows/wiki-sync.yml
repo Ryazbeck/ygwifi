@@ -35,4 +35,4 @@ jobs:
           git config --global user.name "Russell Yazbeck"
           git add .
           git commit -m 'Syncing Wiki [Merge SHA: ${{ github.sha }}]'
-          git push origin master
+          git push origin master -f
