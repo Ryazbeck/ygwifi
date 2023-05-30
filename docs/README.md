@@ -1,3 +1,0 @@
-# YG Wifi
-
-## README
