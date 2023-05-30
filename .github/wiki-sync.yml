@@ -1,0 +1,38 @@
+name: Wiki Sync
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "wiki/**"
+  repository_dispatch:
+    types: [docs]
+  gollum:
+
+jobs:
+  sync-docs-to-wiki:
+    name: Sync Docs changes to Wiki
+    if: github.event_name != 'gollum'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout this repo
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Start SSH agent
+        uses: webfactory/ssh-agent@v0.7.0
+      - name: Clone ygwifi.wiki repo
+        run: |
+          git clone git@github.com:Ryazbeck/ygwifi.wiki.git
+      - name: Copy ygwifi/wiki into ygwifi.wiki
+        run: |
+          cp -r wiki/. ygwifi.wiki
+      - name: Commit and push
+        run: |
+          cd ygwifi.wiki
+          git config --global user.email "russellyazbeck@gmail.com"
+          git config --global user.name "Russell Yazbeck"
+          git add .
+          git commit -m 'Syncing Wiki [Merge SHA: ${{ github.sha }}]'
+          git push origin master
