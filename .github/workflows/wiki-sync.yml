@@ -27,7 +27,7 @@ jobs:
           git clone git@github.com:Ryazbeck/ygwifi.wiki.git
       - name: Copy ygwifi/wiki into ygwifi.wiki
         run: |
-          cp -r docs/. ygwifi.wiki
+          rsync -a -v --exclude '.git' --delete-after docs/ ../ygwifi.wiki
       - name: Commit and push
         run: |
           cd ygwifi.wiki
@@ -35,4 +35,4 @@ jobs:
           git config --global user.name "Russell Yazbeck"
           git add .
           git commit -m 'Syncing Wiki [Merge SHA: ${{ github.sha }}]'
-          git push origin master -f
+          git push origin master
