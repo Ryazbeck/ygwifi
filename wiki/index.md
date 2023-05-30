@@ -1,4 +1,4 @@
-# Sample for mdoc -
+# Sample for mdoc
 
 1. [[Github link syntax]]
     * ```[[Github link syntax]]```
