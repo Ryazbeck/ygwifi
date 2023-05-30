@@ -2,7 +2,7 @@
 
 1. [[Github link syntax]]
     * ```[[Github link syntax]]```
-2. [Github link without file extension](subpage)
+2. [Github link without file extension ](subpage)
     * ```[Github link without file extension](subpage)```
 2. [Github link with folder but without file extension](pages/subpage)
     * ```[Github link with folder but without file extension](pages/subpage)```
