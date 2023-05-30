@@ -10,3 +10,5 @@
     * ```[Github link with file extension](subpage.md)```
 3. [Github link with folder and file extension](pages/subpage.md)
     * ```[Github link with file extension](pages/subpage.md)```
+
+## Github link syntax
