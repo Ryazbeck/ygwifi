@@ -21,7 +21,7 @@ jobs:
       - name: Start SSH agent
         uses: webfactory/ssh-agent@v0.7.0
         with:
-            ssh-private-key: ${{ secrets.GITHUB_TOKEN }}
+            ssh-private-key: ${{ secrets.WIKI_KEY }}
       - name: Clone ygwifi.wiki repo
         run: |
           git clone git@github.com:Ryazbeck/ygwifi.wiki.git
