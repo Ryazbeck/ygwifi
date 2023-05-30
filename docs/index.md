@@ -1,7 +1,7 @@
 # Sample for mdoc
 
 1. [[Github link syntax]]
-    * ```[[Github link syntax ]]```
+    * ```[[Github link syntax]]```
 1. [Github link in main folder without extension](github-link-syntax)
     * ```[Github link syntax](github-link-syntax)```
 2. [Github link without file extension in subfolder](subpage)

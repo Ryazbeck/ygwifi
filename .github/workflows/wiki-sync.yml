@@ -27,7 +27,7 @@ jobs:
           git clone git@github.com:Ryazbeck/ygwifi.wiki.git
       - name: Copy ygwifi/wiki into ygwifi.wiki
         run: |
-          rsync -a -v --exclude '.git' --delete-after docs/ ../ygwifi.wiki
+          rsync -a -v --exclude '.git' --delete-after docs/ ./ygwifi.wiki
       - name: Commit and push
         run: |
           cd ygwifi.wiki
