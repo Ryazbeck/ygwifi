@@ -2,18 +2,16 @@
 id: zs20rho2
 title: Testing
 file_version: 1.1.2
-app_version: 1.9.13
+app_version: 1.9.14
 ---
 
 ### Rspec
 
 Here's testing with Rspec
 
-<br/>
-
 ### Cypress
 
-Here's testing with Cypress
+Here's testing with Cypress.
 
 <br/>
 
