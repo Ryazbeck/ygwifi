@@ -5,7 +5,7 @@ file_version: 1.1.2
 app_version: 1.9.13
 ---
 
-### How to use
+### How to use this
 
 swimm.com or install the swimm extension in VSCode or IntelliJ
 

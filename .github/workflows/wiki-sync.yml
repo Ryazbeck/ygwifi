@@ -32,8 +32,8 @@ jobs:
         run: |
           cd ygwifi.wiki
           find . -name '*sw.md' -exec sed -i -e 1,6d {} ';'
-          find . -name 'home*.sw.md' -exec cp {} Home.md ';'
-          find . -name 'sidebar*.sw.md' -exec cp {} _Sidebar.md ';'
+          find . -name 'home*.sw.md' -exec ghead -n -3 {} > Home.md ';'
+          find . -name 'sidebar*.sw.md' -exec ghead -n -3 {} > _Sidebar.md ';'
           git config --global user.email "russellyazbeck@gmail.com"
           git config --global user.name "Russell Yazbeck"
           git add .
