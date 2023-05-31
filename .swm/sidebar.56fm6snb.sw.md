@@ -7,8 +7,6 @@ app_version: 1.9.13
 
 # Contents
 
-<br/>
-
 ### Getting started
 
 1.  Follow the read me
