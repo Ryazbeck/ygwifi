@@ -31,6 +31,7 @@ jobs:
       - name: Commit and push
         run: |
           cd ygwifi.wiki
+          find . -name '*sw.md' -exec sed -i -e 1,7d {} \;
           git config --global user.email "russellyazbeck@gmail.com"
           git config --global user.name "Russell Yazbeck"
           git add .
