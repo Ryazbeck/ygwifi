@@ -5,7 +5,11 @@ file_version: 1.1.2
 app_version: 1.9.13
 ---
 
-### Getting startedd
+# Contents
+
+<br/>
+
+### Getting started
 
 1.  Follow the read me
 
