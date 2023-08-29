@@ -1,7 +1,7 @@
 ---
 id: kjshujck
 title: Home
-file_version: 1.1.2
+file_version: 1.1.3
 app_version: 1.9.13
 ---
 
@@ -11,9 +11,9 @@ swimm.com or install the swimm extension in VSCode or IntelliJ
 
 ### How to contribute
 
-Clone the Platform repo and commit your doc edits to a PR for review
+Clone the [Platform](https://app.swimm.io/workspaces/okTk0VyR9pVcTTDXGicb/repos/Z2l0aHViJTNBJTNBeWd3aWZpJTNBJTNBUnlhemJlY2s=/docs/zs20rho2#heading-ZKTF3R) repo and commit your doc edits to a PR for review
 
-Edit and create docs at swimm.com and you can commit them to a PR on github for review
+Edit and create docs at swimm.com and you can [commit](https://app.swimm.io/workspaces/okTk0VyR9pVcTTDXGicb/repos/Z2l0aHViJTNBJTNBeWd3aWZpJTNBJTNBUnlhemJlY2s=/docs/kjshujck#heading-2qzXqR) them to a PR on github for review
 
 <br/>
 
